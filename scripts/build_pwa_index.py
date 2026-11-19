@@ -405,11 +405,15 @@ html_code = f"""<!DOCTYPE html>
       <button class="btn btn-outline" id="prevBtn">⏮ 上一題</button>
       <button class="btn btn-primary" id="playBtn">▶ 播放</button>
       <button class="btn btn-outline" id="nextBtn">下一題 ⏭</button>
+      <button class="btn btn-outline" id="randomBtn" style="border-color: #8b5cf6; color: #6d28d9; background: #f5f3ff;">🎲 隨機抽一題</button>
     </div>
 
     <div class="toggle-group">
       <label class="toggle-label">
         <input type="checkbox" id="autoPlayNext" checked> 自動連續播放（題間隔3秒）
+      </label>
+      <label class="toggle-label">
+        <input type="checkbox" id="shuffleMode"> 🔀 隨機播放模式
       </label>
       <label class="toggle-label">
         <input type="checkbox" id="loopSingle"> 單題循環重複聽
@@ -472,8 +476,10 @@ html_code = f"""<!DOCTYPE html>
     const progressFill = document.getElementById("progressFill");
     const progressContainer = document.getElementById("progressContainer");
     const autoPlayNext = document.getElementById("autoPlayNext");
+    const shuffleMode = document.getElementById("shuffleMode");
     const loopSingle = document.getElementById("loopSingle");
     const hideAnswer = document.getElementById("hideAnswer");
+    const randomBtn = document.getElementById("randomBtn");
     const qList = document.getElementById("qList");
 
     const cacheLabel = document.getElementById("cacheLabel");
@@ -613,12 +619,55 @@ html_code = f"""<!DOCTYPE html>
       }}
     }};
 
+    function getFilteredIndices() {{
+      const indices = [];
+      questionsData.forEach((item, index) => {{
+        if (currentFilter === "all" || item.category === currentFilter) {{
+          indices.push(index);
+        }}
+      }});
+      return indices;
+    }}
+
+    function getNextRandomIndex() {{
+      const list = getFilteredIndices();
+      if (list.length === 0) return 0;
+      if (list.length === 1) return list[0];
+      // 避免連續抽到同一題
+      let nextIdx = list[Math.floor(Math.random() * list.length)];
+      while (nextIdx === currentIndex && list.length > 1) {{
+        nextIdx = list[Math.floor(Math.random() * list.length)];
+      }}
+      return nextIdx;
+    }}
+
+    randomBtn.onclick = () => {{
+      const idx = getNextRandomIndex();
+      playQuestion(idx);
+    }};
+
     prevBtn.onclick = () => {{
-      if (currentIndex > 0) playQuestion(currentIndex - 1);
+      const list = getFilteredIndices();
+      const pos = list.indexOf(currentIndex);
+      if (pos > 0) {{
+        playQuestion(list[pos - 1]);
+      }} else if (currentIndex > 0) {{
+        playQuestion(currentIndex - 1);
+      }}
     }};
 
     nextBtn.onclick = () => {{
-      if (currentIndex < questionsData.length - 1) playQuestion(currentIndex + 1);
+      if (shuffleMode.checked) {{
+        playQuestion(getNextRandomIndex());
+        return;
+      }}
+      const list = getFilteredIndices();
+      const pos = list.indexOf(currentIndex);
+      if (pos >= 0 && pos < list.length - 1) {{
+        playQuestion(list[pos + 1]);
+      }} else if (currentIndex < questionsData.length - 1) {{
+        playQuestion(currentIndex + 1);
+      }}
     }};
 
     audio.ontimeupdate = () => {{
@@ -654,11 +703,19 @@ html_code = f"""<!DOCTYPE html>
       if (autoPlayNext.checked) {{
         playingTitle.innerText = `準備下一題...（間隔 3 秒）`;
         setTimeout(() => {{
-          if (currentIndex < questionsData.length - 1) {{
-            playQuestion(currentIndex + 1);
+          if (shuffleMode.checked) {{
+            playQuestion(getNextRandomIndex());
           }} else {{
-            isPlaying = false;
-            updateUI();
+            const list = getFilteredIndices();
+            const pos = list.indexOf(currentIndex);
+            if (pos >= 0 && pos < list.length - 1) {{
+              playQuestion(list[pos + 1]);
+            }} else if (currentIndex < questionsData.length - 1) {{
+              playQuestion(currentIndex + 1);
+            }} else {{
+              isPlaying = false;
+              updateUI();
+            }}
           }}
         }}, 3000);
       }} else {{
@@ -697,7 +754,7 @@ html_code = f"""<!DOCTYPE html>
       cacheLabel.innerText = '連線下載中，請勿關閉網頁...';
       cacheLabel.style.color = '#2563eb';
 
-      const cache = await caches.open('autism-tts-v1.0.0');
+      const cache = await caches.open('autism-tts-v1.1.0');
       let successCount = 0;
       let failCount = 0;
       const total = questionsData.length;
@@ -761,7 +818,7 @@ html_code = f"""<!DOCTYPE html>
     // 檢查目前是否已快取完整音檔
     async function checkExistingCache() {{
       if ('caches' in window) {{
-        const cache = await caches.open('autism-tts-v1.0.0');
+        const cache = await caches.open('autism-tts-v1.1.0');
         const keys = await cache.keys();
         const audioCount = keys.filter(k => k.url.includes('.mp3')).length;
         if (audioCount >= questionsData.length) {{

@@ -1,0 +1,17 @@
+{
+  "name": "生活問答特教教材（100題）",
+  "short_name": "生活問答",
+  "description": "自閉症日常認知「什麼時候……？」逐字稿自然人聲問答教材",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

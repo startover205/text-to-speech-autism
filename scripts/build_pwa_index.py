@@ -453,11 +453,32 @@ html_code = f"""<!DOCTYPE html>
   <audio id="audioElement" preload="auto"></audio>
 
   <script>
-    // 註冊 PWA Service Worker
+    // 註冊 PWA Service Worker 並自動偵測更新（免手動清除快取）
     if ('serviceWorker' in navigator) {{
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Service Worker 註冊成功:', reg.scope))
-        .catch(err => console.log('Service Worker 註冊略過:', err));
+      navigator.serviceWorker.register('./sw.js').then(reg => {{
+        console.log('Service Worker 註冊成功:', reg.scope);
+        // 每次打開主動檢查是否有新版本
+        reg.update();
+        
+        reg.onupdatefound = () => {{
+          const installingWorker = reg.installing;
+          installingWorker.onstatechange = () => {{
+            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {{
+              console.log('偵測到新版本，自動刷新升級！');
+              window.location.reload();
+            }}
+          }};
+        }};
+      }}).catch(err => console.log('Service Worker 註冊略過:', err));
+
+      // 當新的 Service Worker 生效時自動重新載入頁面
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {{
+        if (!refreshing) {{
+          refreshing = true;
+          window.location.reload();
+        }}
+      }});
     }}
 
     const questionsData = {json_str};

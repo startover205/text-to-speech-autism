@@ -413,7 +413,7 @@ html_code = f"""<!DOCTYPE html>
         <input type="checkbox" id="autoPlayNext" checked> 自動連續播放（題間隔3秒）
       </label>
       <label class="toggle-label">
-        <input type="checkbox" id="shuffleMode"> 🔀 隨機播放模式
+        <input type="checkbox" id="shuffleMode"> 隨機播放模式
       </label>
       <label class="toggle-label">
         <input type="checkbox" id="loopSingle"> 單題循環重複聽
@@ -743,7 +743,7 @@ html_code = f"""<!DOCTYPE html>
         return;
       }}
       if (!navigator.onLine) {{
-        alert('⚠️ 目前處於離線狀態（例如開啟了飛航模式）！\n\n請先連上 Wi-Fi 或行動網路，才能下載音檔到手機內喔！\n下載完成後，就可以關閉網路離線使用了。');
+        alert(`⚠️ 目前處於離線狀態（例如開啟了飛航模式）！\n\n請先連上 Wi-Fi 或行動網路，才能下載音檔到手機內喔！\n下載完成後，就可以關閉網路離線使用了。`);
         cacheLabel.innerText = '⚠️ 請先連線網路，才能將音檔下載到手機中';
         cacheLabel.style.color = '#dc2626';
         return;
@@ -754,7 +754,7 @@ html_code = f"""<!DOCTYPE html>
       cacheLabel.innerText = '連線下載中，請勿關閉網頁...';
       cacheLabel.style.color = '#2563eb';
 
-      const cache = await caches.open('autism-tts-v1.1.0');
+      const cache = await caches.open('autism-tts-v1.1.1');
       let successCount = 0;
       let failCount = 0;
       const total = questionsData.length;
@@ -818,7 +818,7 @@ html_code = f"""<!DOCTYPE html>
     // 檢查目前是否已快取完整音檔
     async function checkExistingCache() {{
       if ('caches' in window) {{
-        const cache = await caches.open('autism-tts-v1.1.0');
+        const cache = await caches.open('autism-tts-v1.1.1');
         const keys = await cache.keys();
         const audioCount = keys.filter(k => k.url.includes('.mp3')).length;
         if (audioCount >= questionsData.length) {{

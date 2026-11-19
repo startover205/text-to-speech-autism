@@ -17,6 +17,8 @@ html_code = f"""<!DOCTYPE html>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon.svg">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob:; img-src 'self' data:; connect-src 'self' data: blob:;">
+  <meta name="referrer" content="no-referrer">
   <title>生活問答特教教材（100題）</title>
   <style>
     :root {{
@@ -480,6 +482,16 @@ html_code = f"""<!DOCTYPE html>
     const cacheProgressBar = document.getElementById("cacheProgressBar");
     const cacheProgressFill = document.getElementById("cacheProgressFill");
 
+        function escapeHtml(str) {{
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/\x27/g, "&#039;");
+    }}
+
     function formatTime(seconds) {{
       if (isNaN(seconds) || seconds < 0) return "00:00";
       const m = Math.floor(seconds / 60);
@@ -513,9 +525,9 @@ html_code = f"""<!DOCTYPE html>
               <span class="badge ${{!isAlbumMode && index === currentIndex && isPlaying ? "badge-playing" : ""}}">第 ${{item.id}} 題</span>
               <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">${{item.category.split("：")[1] || item.category}}</span>
             </div>
-            <div class="q-title">${{item.question}}</div>
+            <div class="q-title">${{escapeHtml(item.question)}}</div>
           </div>
-          <div class="q-answer ${{isHidden ? 'hidden-answer' : ''}}">${{item.answer}}</div>
+          <div class="q-answer ${{isHidden ? 'hidden-answer' : ''}}">${{escapeHtml(item.answer)}}</div>
         `;
         qList.appendChild(card);
       }});
@@ -570,7 +582,7 @@ html_code = f"""<!DOCTYPE html>
       if (!isAlbumMode) {{
         const item = questionsData[currentIndex];
         if (item) {{
-          playingTitle.innerText = `第 ${{item.id}} 題：${{item.question}}`;
+          playingTitle.innerText = `第 ${{item.id}} 題：${{escapeHtml(item.question)}}`;
         }}
       }}
       playBtn.innerText = isPlaying ? "⏸ 暫停" : "▶ 播放";

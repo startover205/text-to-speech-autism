@@ -23,7 +23,7 @@ html_code = f"""<!DOCTYPE html>
   <link rel="apple-touch-icon" href="icon.svg">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob:; img-src 'self' data:; connect-src 'self' data: blob:;">
   <meta name="referrer" content="no-referrer">
-  <title>特教生活與因果認知問答（200題雙單元）</title>
+  <title>特教生活與因果認知問答（全200題雙單元）</title>
   <style>
     :root {{
       --primary: #2563eb;
@@ -37,6 +37,8 @@ html_code = f"""<!DOCTYPE html>
       --success: #10b981;
       --unit-why: #d97706;
       --unit-why-hover: #b45309;
+      --unit-all: #7c3aed;
+      --unit-all-hover: #6d28d9;
     }}
 
     * {{
@@ -64,6 +66,7 @@ html_code = f"""<!DOCTYPE html>
       font-size: 1.5rem;
       color: #1e3a8a;
       margin-bottom: 4px;
+      transition: color 0.2s ease;
     }}
 
     .subtitle {{
@@ -72,15 +75,15 @@ html_code = f"""<!DOCTYPE html>
       line-height: 1.4;
     }}
 
-    /* 單元大切換 Switcher */
+    /* 單元大切換 Switcher (三 Tab 切換) */
     .unit-switch-container {{
       max-width: 900px;
       margin: 0 auto 14px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
       background: #e2e8f0;
-      padding: 5px;
+      padding: 6px;
       border-radius: 14px;
     }}
 
@@ -104,7 +107,7 @@ html_code = f"""<!DOCTYPE html>
     .unit-btn .unit-desc {{
       font-size: 0.76rem;
       font-weight: normal;
-      opacity: 0.85;
+      opacity: 0.88;
     }}
 
     .unit-btn.active.unit-when {{
@@ -117,6 +120,12 @@ html_code = f"""<!DOCTYPE html>
       background: #d97706;
       color: white;
       box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }}
+
+    .unit-btn.active.unit-all {{
+      background: #7c3aed;
+      color: white;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
     }}
 
     /* 離線快取狀態欄 */
@@ -194,12 +203,17 @@ html_code = f"""<!DOCTYPE html>
       border-radius: 16px;
       padding: 16px;
       box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
-      transition: border-color 0.2s ease;
+      transition: all 0.2s ease;
     }}
 
     .player-dock.dock-why {{
       border-color: #fcd34d;
       box-shadow: 0 8px 24px rgba(217, 119, 6, 0.12);
+    }}
+
+    .player-dock.dock-all {{
+      border-color: #c4b5fd;
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
     }}
 
     .now-playing {{
@@ -214,6 +228,10 @@ html_code = f"""<!DOCTYPE html>
 
     .dock-why .now-playing {{
       color: #b45309;
+    }}
+
+    .dock-all .now-playing {{
+      color: #6d28d9;
     }}
 
     .controls-row {{
@@ -256,6 +274,14 @@ html_code = f"""<!DOCTYPE html>
       background: var(--unit-why-hover);
     }}
 
+    .dock-all .btn-primary {{
+      background: var(--unit-all);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    }}
+    .dock-all .btn-primary:hover {{
+      background: var(--unit-all-hover);
+    }}
+
     .btn-outline {{
       background: white;
       border: 1.5px solid var(--border);
@@ -284,6 +310,10 @@ html_code = f"""<!DOCTYPE html>
 
     .dock-why .progress-bar-fill {{
       background: var(--unit-why);
+    }}
+
+    .dock-all .progress-bar-fill {{
+      background: var(--unit-all);
     }}
 
     .toggle-group {{
@@ -323,6 +353,11 @@ html_code = f"""<!DOCTYPE html>
       border-color: #f59e0b;
     }}
 
+    .album-shortcuts.shortcuts-all {{
+      background: #f5f3ff;
+      border-color: #a78bfa;
+    }}
+
     .album-title {{
       font-size: 0.88rem;
       font-weight: 700;
@@ -332,6 +367,10 @@ html_code = f"""<!DOCTYPE html>
 
     .shortcuts-why .album-title {{
       color: #b45309;
+    }}
+
+    .shortcuts-all .album-title {{
+      color: #6d28d9;
     }}
 
     .btn-sm {{
@@ -369,6 +408,11 @@ html_code = f"""<!DOCTYPE html>
     .tabs-why .tab-btn.active {{
       background: #d97706;
       border-color: #d97706;
+    }}
+
+    .tabs-all .tab-btn.active {{
+      background: #7c3aed;
+      border-color: #7c3aed;
     }}
 
     /* 題目網格列表 */
@@ -411,6 +455,12 @@ html_code = f"""<!DOCTYPE html>
       box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.3);
     }}
 
+    .list-all .q-card.playing {{
+      background: #f5f3ff;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+    }}
+
     .q-header {{
       display: flex;
       justify-content: space-between;
@@ -434,6 +484,11 @@ html_code = f"""<!DOCTYPE html>
 
     .list-why .badge-playing {{
       background: #d97706;
+      color: white;
+    }}
+
+    .list-all .badge-playing {{
+      background: #7c3aed;
       color: white;
     }}
 
@@ -472,19 +527,23 @@ html_code = f"""<!DOCTYPE html>
 <body>
 
   <header>
-    <h1 id="mainTitle">特教生活與因果認知教材（200題）</h1>
+    <h1 id="mainTitle">特教生活與因果認知教材（全200題）</h1>
     <p class="subtitle" id="mainSubtitle">臺灣國語自然女聲（語速 90% | 問後停頓 3 秒 | 題間間隔 3 秒）</p>
   </header>
 
-  <!-- 單元大切換 Switcher -->
+  <!-- 單元大切換 Switcher (三 Tab 切換) -->
   <div class="unit-switch-container">
     <button class="unit-btn active unit-when" id="btnSwitchWhen" onclick="switchUnit('when')">
-      <span>📘 單元一：生活問答（什麼時候？）</span>
-      <span class="unit-desc">100題 | 問後停頓 3秒 | 適合日常情境</span>
+      <span>📘 單元一：生活問答</span>
+      <span class="unit-desc">100題（什麼時候）| 停頓3秒</span>
     </button>
     <button class="unit-btn unit-why" id="btnSwitchWhy" onclick="switchUnit('why')">
-      <span>📙 單元二：因果認知（為什麼？）</span>
-      <span class="unit-desc">100題 | 問後停頓 5秒 | 適合思考推理</span>
+      <span>📙 單元二：因果認知</span>
+      <span class="unit-desc">100題（為什麼）| 停頓5秒</span>
+    </button>
+    <button class="unit-btn unit-all" id="btnSwitchAll" onclick="switchUnit('all')">
+      <span>🎲 全部雙單元綜合</span>
+      <span class="unit-desc">全200題 | 跨單元隨機大混播</span>
     </button>
   </div>
 
@@ -495,8 +554,8 @@ html_code = f"""<!DOCTYPE html>
       <span id="cacheLabel" style="color: #2563eb;">點擊右側按鈕可預載音檔，沒網路也能播放</span>
     </div>
     <div class="cache-actions">
-      <button class="btn-xs" id="btnDownloadCurrent" style="background: #2563eb; color: white; border-color: #2563eb;">📥 下載本單元 (15MB)</button>
-      <button class="btn-xs" id="btnDownloadAll" style="background: #475569; color: white; border-color: #475569;">📥 下載雙單元全套 (30MB)</button>
+      <button class="btn-xs" id="btnDownloadCurrent" style="background: #2563eb; color: white; border-color: #2563eb;">📥 下載當前單元</button>
+      <button class="btn-xs" id="btnDownloadAll" style="background: #7c3aed; color: white; border-color: #7c3aed;">📥 下載全部 200 題 (30MB)</button>
       <button class="btn-xs" id="btnClearCache">🔄 清理快取</button>
     </div>
     <div class="cache-progress-bar" id="cacheProgressBar">
@@ -581,8 +640,12 @@ html_code = f"""<!DOCTYPE html>
       }});
     }}
 
-    const dataWhen = {json_when_str};
-    const dataWhy = {json_why_str};
+    const rawWhen = {json_when_str};
+    const rawWhy = {json_why_str};
+
+    const dataWhen = rawWhen.map(item => ({{ ...item, unit: 'when', unitName: '生活' }}));
+    const dataWhy = rawWhy.map(item => ({{ ...item, unit: 'why', unitName: '因果' }}));
+    const dataAll = [...dataWhen, ...dataWhy];
 
     const config = {{
       when: {{
@@ -609,13 +672,26 @@ html_code = f"""<!DOCTYPE html>
         autoLabel: "自動連續播放（題間隔2秒）",
         audioDir: "./output/singles_why/",
         fullAlbum: "./output/why_100_compilation.mp3",
-        fullAlbumName: "為什麼因果認知100題完整大合輯",
+        fullAlbumName: "為什麼因果認知100題完整大合輯 (21分鐘)",
         categories: [
           {{ key: "第一類：身體需求與日常生活", label: "1. 身體日常 (1-20)", album: "./output/categories_why/01_第一類_身體需求與日常生活(1-20題).mp3", albumName: "第一類：身體日常" }},
           {{ key: "第二類：天氣、穿著與環境", label: "2. 天氣環境 (21-40)", album: "./output/categories_why/02_第二類_天氣穿著與環境(21-40題).mp3", albumName: "第二類：天氣環境" }},
           {{ key: "第三類：學校與外出安全", label: "3. 學校安全 (41-60)", album: "./output/categories_why/03_第三類_學校與外出安全(41-60題).mp3", albumName: "第三類：學校安全" }},
           {{ key: "第四類：情緒與人際互動", label: "4. 情緒人際 (61-80)", album: "./output/categories_why/04_第四類_情緒與人際互動(61-80題).mp3", albumName: "第四類：情緒人際" }},
           {{ key: "第五類：生活情境與因果推理", label: "5. 生活因果 (81-100)", album: "./output/categories_why/05_第五類_生活情境與因果推理(81-100題).mp3", albumName: "第五類：生活因果" }}
+        ]
+      }},
+      all: {{
+        title: "特教雙單元綜合（全 200 題大混播）",
+        subtitle: "臺灣國語自然女聲（生活問答 100 題 + 因果認知 100 題 | 跨單元隨機大抽題）",
+        autoDelay: 2500,
+        autoLabel: "自動連續播放（題間隔2.5秒）",
+        fullAlbum: "./output/full_100_compilation.mp3",
+        fullAlbumName: "生活問答完整大合輯",
+        categories: [
+          {{ key: "all", label: "🎲 全部 200 題混播" }},
+          {{ key: "when", label: "📘 生活問答 (100題)" }},
+          {{ key: "why", label: "📙 因果認知 (100題)" }}
         ]
       }}
     }};
@@ -627,7 +703,7 @@ html_code = f"""<!DOCTYPE html>
     let isAlbumMode = false;
     let currentFilter = "all";
 
-    const CACHE_NAME = 'autism-tts-v2.0.0';
+    const CACHE_NAME = 'autism-tts-v2.1.0';
 
     const audio = document.getElementById("audioElement");
     const playBtn = document.getElementById("playBtn");
@@ -672,16 +748,24 @@ html_code = f"""<!DOCTYPE html>
       return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
     }}
 
-    function getAudioPath(unit, item) {{
+    function getAudioPath(item) {{
       const cleanQ = item.question.replace("？", "").replace("?", "").replace("/", "_").trim();
       const idStr = String(item.id).padStart(3, "0");
-      const dir = config[unit].audioDir;
+      const dir = item.unit === "why" ? config.why.audioDir : config.when.audioDir;
       return encodeURI(`${{dir}}第${{idStr}}題_${{cleanQ}}.mp3`);
     }}
 
     function switchUnit(unitKey) {{
       currentUnit = unitKey;
-      questionsData = (unitKey === "when") ? dataWhen : dataWhy;
+      if (unitKey === "when") {{
+        questionsData = dataWhen;
+      }} else if (unitKey === "why") {{
+        questionsData = dataWhy;
+      }} else {{
+        questionsData = dataAll;
+        shuffleMode.checked = true; // 切換到全 200 題綜合時預設開啟隨機播放！
+      }}
+
       currentIndex = 0;
       isAlbumMode = false;
       currentFilter = "all";
@@ -695,24 +779,40 @@ html_code = f"""<!DOCTYPE html>
       // 更新按鈕外觀
       const btnWhen = document.getElementById("btnSwitchWhen");
       const btnWhy = document.getElementById("btnSwitchWhy");
+      const btnAll = document.getElementById("btnSwitchAll");
+
+      btnWhen.classList.remove("active");
+      btnWhy.classList.remove("active");
+      btnAll.classList.remove("active");
+
+      playerDock.classList.remove("dock-why", "dock-all");
+      albumContainer.classList.remove("shortcuts-why", "shortcuts-all");
+      tabsContainer.classList.remove("tabs-why", "tabs-all");
+      qList.classList.remove("list-why", "list-all");
+
       if (unitKey === "when") {{
         btnWhen.classList.add("active");
-        btnWhy.classList.remove("active");
-        playerDock.classList.remove("dock-why");
-        albumContainer.classList.remove("shortcuts-why");
-        tabsContainer.classList.remove("tabs-why");
-        qList.classList.remove("list-why");
         btnDownloadCurrent.style.background = "#2563eb";
         btnDownloadCurrent.style.borderColor = "#2563eb";
-      }} else {{
+        btnDownloadCurrent.innerText = "📥 下載生活問答 (15MB)";
+      }} else if (unitKey === "why") {{
         btnWhy.classList.add("active");
-        btnWhen.classList.remove("active");
         playerDock.classList.add("dock-why");
         albumContainer.classList.add("shortcuts-why");
         tabsContainer.classList.add("tabs-why");
         qList.classList.add("list-why");
         btnDownloadCurrent.style.background = "#d97706";
         btnDownloadCurrent.style.borderColor = "#d97706";
+        btnDownloadCurrent.innerText = "📥 下載因果認知 (15MB)";
+      }} else {{
+        btnAll.classList.add("active");
+        playerDock.classList.add("dock-all");
+        albumContainer.classList.add("shortcuts-all");
+        tabsContainer.classList.add("tabs-all");
+        qList.classList.add("list-all");
+        btnDownloadCurrent.style.background = "#7c3aed";
+        btnDownloadCurrent.style.borderColor = "#7c3aed";
+        btnDownloadCurrent.innerText = "📥 下載全200題 (30MB)";
       }}
 
       // 更新文案
@@ -729,28 +829,49 @@ html_code = f"""<!DOCTYPE html>
       const unitCfg = config[currentUnit];
       
       // 合輯快捷鍵
-      albumContainer.innerHTML = `
-        <span class="album-title">🚌 復康巴士一鍵合輯：</span>
-        <button class="btn btn-outline btn-sm" id="btnAlbumFull">▶ 100題完整大合輯</button>
-      `;
-      unitCfg.categories.forEach((cat, idx) => {{
-        const b = document.createElement("button");
-        b.className = "btn btn-outline btn-sm";
-        b.innerText = `${{idx + 1}}. ${{cat.albumName.split("：")[1] || cat.albumName}}`;
-        b.onclick = () => playAlbum(cat.album, cat.albumName);
-        albumContainer.appendChild(b);
-      }});
-      document.getElementById("btnAlbumFull").onclick = () => playAlbum(unitCfg.fullAlbum, unitCfg.fullAlbumName);
+      if (currentUnit === "all") {{
+        albumContainer.innerHTML = `
+          <span class="album-title">🚌 復康巴士一鍵合輯：</span>
+          <button class="btn btn-outline btn-sm" id="btnAlbumFullWhen">▶ 生活問答大合輯 (19分)</button>
+          <button class="btn btn-outline btn-sm" id="btnAlbumFullWhy">▶ 因果認知大合輯 (21分)</button>
+        `;
+        document.getElementById("btnAlbumFullWhen").onclick = () => playAlbum(config.when.fullAlbum, config.when.fullAlbumName);
+        document.getElementById("btnAlbumFullWhy").onclick = () => playAlbum(config.why.fullAlbum, config.why.fullAlbumName);
+      }} else {{
+        albumContainer.innerHTML = `
+          <span class="album-title">🚌 復康巴士一鍵合輯：</span>
+          <button class="btn btn-outline btn-sm" id="btnAlbumFull">▶ 100題完整大合輯</button>
+        `;
+        unitCfg.categories.forEach((cat, idx) => {{
+          const b = document.createElement("button");
+          b.className = "btn btn-outline btn-sm";
+          b.innerText = `${{idx + 1}}. ${{cat.albumName.split("：")[1] || cat.albumName}}`;
+          b.onclick = () => playAlbum(cat.album, cat.albumName);
+          albumContainer.appendChild(b);
+        }});
+        document.getElementById("btnAlbumFull").onclick = () => playAlbum(unitCfg.fullAlbum, unitCfg.fullAlbumName);
+      }}
 
       // 分類標籤
-      tabsContainer.innerHTML = `<button class="tab-btn active" data-cat="all">全部 100 題</button>`;
-      unitCfg.categories.forEach(cat => {{
-        const tb = document.createElement("button");
-        tb.className = "tab-btn";
-        tb.setAttribute("data-cat", cat.key);
-        tb.innerText = cat.label;
-        tabsContainer.appendChild(tb);
-      }});
+      tabsContainer.innerHTML = "";
+      if (currentUnit === "all") {{
+        unitCfg.categories.forEach((cat, idx) => {{
+          const tb = document.createElement("button");
+          tb.className = `tab-btn ${{idx === 0 ? "active" : ""}}`;
+          tb.setAttribute("data-cat", cat.key);
+          tb.innerText = cat.label;
+          tabsContainer.appendChild(tb);
+        }});
+      }} else {{
+        tabsContainer.innerHTML = `<button class="tab-btn active" data-cat="all">全部 100 題</button>`;
+        unitCfg.categories.forEach(cat => {{
+          const tb = document.createElement("button");
+          tb.className = "tab-btn";
+          tb.setAttribute("data-cat", cat.key);
+          tb.innerText = cat.label;
+          tabsContainer.appendChild(tb);
+        }});
+      }}
     }}
 
     function renderList() {{
@@ -758,8 +879,11 @@ html_code = f"""<!DOCTYPE html>
       const isHidden = hideAnswer.checked;
 
       questionsData.forEach((item, index) => {{
-        if (currentFilter !== "all" && item.category !== currentFilter) {{
-          return;
+        if (currentUnit === "all") {{
+          if (currentFilter === "when" && item.unit !== "when") return;
+          if (currentFilter === "why" && item.unit !== "why") return;
+        }} else {{
+          if (currentFilter !== "all" && item.category !== currentFilter) return;
         }}
 
         const card = document.createElement("div");
@@ -767,10 +891,12 @@ html_code = f"""<!DOCTYPE html>
         card.id = `card-${{index}}`;
         card.onclick = () => playQuestion(index);
 
+        const badgeText = currentUnit === "all" ? `【${{item.unitName}}】第 ${{item.id}} 題` : `第 ${{item.id}} 題`;
+
         card.innerHTML = `
           <div>
             <div class="q-header">
-              <span class="badge ${{!isAlbumMode && index === currentIndex && isPlaying ? "badge-playing" : ""}}">第 ${{item.id}} 題</span>
+              <span class="badge ${{!isAlbumMode && index === currentIndex && isPlaying ? "badge-playing" : ""}}">${{badgeText}}</span>
               <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">${{item.category.split("：")[1] || item.category}}</span>
             </div>
             <div class="q-title">${{escapeHtml(item.question)}}</div>
@@ -786,7 +912,7 @@ html_code = f"""<!DOCTYPE html>
       isAlbumMode = false;
       currentIndex = index;
       const item = questionsData[index];
-      const audioSrc = getAudioPath(currentUnit, item);
+      const audioSrc = getAudioPath(item);
 
       audio.src = audioSrc;
       audio.load();
@@ -821,7 +947,8 @@ html_code = f"""<!DOCTYPE html>
       if (!isAlbumMode) {{
         const item = questionsData[currentIndex];
         if (item) {{
-          playingTitle.innerText = `第 ${{item.id}} 題：${{escapeHtml(item.question)}}`;
+          const tag = currentUnit === "all" ? `【${{item.unitName}}】` : "";
+          playingTitle.innerText = `${{tag}}第 ${{item.id}} 題：${{escapeHtml(item.question)}}`;
         }}
       }}
       playBtn.innerText = isPlaying ? "⏸ 暫停" : "▶ 播放";
@@ -855,8 +982,14 @@ html_code = f"""<!DOCTYPE html>
     function getFilteredIndices() {{
       const indices = [];
       questionsData.forEach((item, index) => {{
-        if (currentFilter === "all" || item.category === currentFilter) {{
+        if (currentUnit === "all") {{
+          if (currentFilter === "when" && item.unit !== "when") return;
+          if (currentFilter === "why" && item.unit !== "why") return;
           indices.push(index);
+        }} else {{
+          if (currentFilter === "all" || item.category === currentFilter) {{
+            indices.push(index);
+          }}
         }}
       }});
       return indices;
@@ -933,7 +1066,10 @@ html_code = f"""<!DOCTYPE html>
       }}
 
       if (autoPlayNext.checked) {{
-        const delaySec = config[currentUnit].autoDelay / 1000;
+        const delay = (currentUnit === "all" && questionsData[currentIndex]) 
+          ? (questionsData[currentIndex].unit === "why" ? 2000 : 3000) 
+          : config[currentUnit].autoDelay;
+        const delaySec = delay / 1000;
         playingTitle.innerText = `準備下一題...（間隔 ${{delaySec}} 秒）`;
         setTimeout(() => {{
           if (shuffleMode.checked) {{
@@ -950,7 +1086,7 @@ html_code = f"""<!DOCTYPE html>
               updateUI();
             }}
           }}
-        }}, config[currentUnit].autoDelay);
+        }}, delay);
       }} else {{
         isPlaying = false;
         updateUI();
@@ -1029,15 +1165,15 @@ html_code = f"""<!DOCTYPE html>
 
     // 下載當前單元
     btnDownloadCurrent.onclick = () => {{
-      const list = questionsData.map(item => getAudioPath(currentUnit, item));
-      downloadAudioBatch(list, `正在下載【${{currentUnit === 'when' ? '生活問答' : '因果認知'}}】`);
+      const list = questionsData.map(item => getAudioPath(item));
+      const title = currentUnit === 'when' ? '生活問答' : (currentUnit === 'why' ? '因果認知' : '全部雙單元');
+      downloadAudioBatch(list, `正在下載【${{title}}】`);
     }};
 
     // 下載雙單元全部 200 題
     btnDownloadAll.onclick = () => {{
-      const list1 = dataWhen.map(item => getAudioPath('when', item));
-      const list2 = dataWhy.map(item => getAudioPath('why', item));
-      downloadAudioBatch([...list1, ...list2], '正在下載雙單元 200 題');
+      const list = dataAll.map(item => getAudioPath(item));
+      downloadAudioBatch(list, '正在下載雙單元全套 200 題');
     }};
 
     // 清理快取
@@ -1076,7 +1212,7 @@ html_code = f"""<!DOCTYPE html>
       }}
     }}
 
-    // 初始化
+    // 初始化預設為生活問答單元
     switchUnit("when");
   </script>
 </body>
@@ -1086,4 +1222,4 @@ html_code = f"""<!DOCTYPE html>
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_code)
 
-print("Root index.html (PWA) with dual units built successfully!")
+print("Root index.html (PWA) with 3 unit tabs built successfully!")

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'autism-tts-v2.0.0';
+const CACHE_NAME = 'autism-tts-v2.1.0';
 
 const CORE_ASSETS = [
   './',

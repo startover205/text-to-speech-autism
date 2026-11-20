@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="icon.svg">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob:; img-src 'self' data:; connect-src 'self' data: blob:;">
   <meta name="referrer" content="no-referrer">
-  <title>特教生活與因果認知問答（200題雙單元）</title>
+  <title>特教生活與因果認知問答（全200題雙單元）</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -26,6 +26,8 @@
       --success: #10b981;
       --unit-why: #d97706;
       --unit-why-hover: #b45309;
+      --unit-all: #7c3aed;
+      --unit-all-hover: #6d28d9;
     }
 
     * {
@@ -53,6 +55,7 @@
       font-size: 1.5rem;
       color: #1e3a8a;
       margin-bottom: 4px;
+      transition: color 0.2s ease;
     }
 
     .subtitle {
@@ -61,15 +64,15 @@
       line-height: 1.4;
     }
 
-    /* 單元大切換 Switcher */
+    /* 單元大切換 Switcher (三 Tab 切換) */
     .unit-switch-container {
       max-width: 900px;
       margin: 0 auto 14px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
       background: #e2e8f0;
-      padding: 5px;
+      padding: 6px;
       border-radius: 14px;
     }
 
@@ -93,7 +96,7 @@
     .unit-btn .unit-desc {
       font-size: 0.76rem;
       font-weight: normal;
-      opacity: 0.85;
+      opacity: 0.88;
     }
 
     .unit-btn.active.unit-when {
@@ -106,6 +109,12 @@
       background: #d97706;
       color: white;
       box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }
+
+    .unit-btn.active.unit-all {
+      background: #7c3aed;
+      color: white;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
     }
 
     /* 離線快取狀態欄 */
@@ -183,12 +192,17 @@
       border-radius: 16px;
       padding: 16px;
       box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
-      transition: border-color 0.2s ease;
+      transition: all 0.2s ease;
     }
 
     .player-dock.dock-why {
       border-color: #fcd34d;
       box-shadow: 0 8px 24px rgba(217, 119, 6, 0.12);
+    }
+
+    .player-dock.dock-all {
+      border-color: #c4b5fd;
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
     }
 
     .now-playing {
@@ -203,6 +217,10 @@
 
     .dock-why .now-playing {
       color: #b45309;
+    }
+
+    .dock-all .now-playing {
+      color: #6d28d9;
     }
 
     .controls-row {
@@ -245,6 +263,14 @@
       background: var(--unit-why-hover);
     }
 
+    .dock-all .btn-primary {
+      background: var(--unit-all);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    }
+    .dock-all .btn-primary:hover {
+      background: var(--unit-all-hover);
+    }
+
     .btn-outline {
       background: white;
       border: 1.5px solid var(--border);
@@ -273,6 +299,10 @@
 
     .dock-why .progress-bar-fill {
       background: var(--unit-why);
+    }
+
+    .dock-all .progress-bar-fill {
+      background: var(--unit-all);
     }
 
     .toggle-group {
@@ -312,6 +342,11 @@
       border-color: #f59e0b;
     }
 
+    .album-shortcuts.shortcuts-all {
+      background: #f5f3ff;
+      border-color: #a78bfa;
+    }
+
     .album-title {
       font-size: 0.88rem;
       font-weight: 700;
@@ -321,6 +356,10 @@
 
     .shortcuts-why .album-title {
       color: #b45309;
+    }
+
+    .shortcuts-all .album-title {
+      color: #6d28d9;
     }
 
     .btn-sm {
@@ -358,6 +397,11 @@
     .tabs-why .tab-btn.active {
       background: #d97706;
       border-color: #d97706;
+    }
+
+    .tabs-all .tab-btn.active {
+      background: #7c3aed;
+      border-color: #7c3aed;
     }
 
     /* 題目網格列表 */
@@ -400,6 +444,12 @@
       box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.3);
     }
 
+    .list-all .q-card.playing {
+      background: #f5f3ff;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+    }
+
     .q-header {
       display: flex;
       justify-content: space-between;
@@ -423,6 +473,11 @@
 
     .list-why .badge-playing {
       background: #d97706;
+      color: white;
+    }
+
+    .list-all .badge-playing {
+      background: #7c3aed;
       color: white;
     }
 
@@ -461,19 +516,23 @@
 <body>
 
   <header>
-    <h1 id="mainTitle">特教生活與因果認知教材（200題）</h1>
+    <h1 id="mainTitle">特教生活與因果認知教材（全200題）</h1>
     <p class="subtitle" id="mainSubtitle">臺灣國語自然女聲（語速 90% | 問後停頓 3 秒 | 題間間隔 3 秒）</p>
   </header>
 
-  <!-- 單元大切換 Switcher -->
+  <!-- 單元大切換 Switcher (三 Tab 切換) -->
   <div class="unit-switch-container">
     <button class="unit-btn active unit-when" id="btnSwitchWhen" onclick="switchUnit('when')">
-      <span>📘 單元一：生活問答（什麼時候？）</span>
-      <span class="unit-desc">100題 | 問後停頓 3秒 | 適合日常情境</span>
+      <span>📘 單元一：生活問答</span>
+      <span class="unit-desc">100題（什麼時候）| 停頓3秒</span>
     </button>
     <button class="unit-btn unit-why" id="btnSwitchWhy" onclick="switchUnit('why')">
-      <span>📙 單元二：因果認知（為什麼？）</span>
-      <span class="unit-desc">100題 | 問後停頓 5秒 | 適合思考推理</span>
+      <span>📙 單元二：因果認知</span>
+      <span class="unit-desc">100題（為什麼）| 停頓5秒</span>
+    </button>
+    <button class="unit-btn unit-all" id="btnSwitchAll" onclick="switchUnit('all')">
+      <span>🎲 全部雙單元綜合</span>
+      <span class="unit-desc">全200題 | 跨單元隨機大混播</span>
     </button>
   </div>
 
@@ -484,8 +543,8 @@
       <span id="cacheLabel" style="color: #2563eb;">點擊右側按鈕可預載音檔，沒網路也能播放</span>
     </div>
     <div class="cache-actions">
-      <button class="btn-xs" id="btnDownloadCurrent" style="background: #2563eb; color: white; border-color: #2563eb;">📥 下載本單元 (15MB)</button>
-      <button class="btn-xs" id="btnDownloadAll" style="background: #475569; color: white; border-color: #475569;">📥 下載雙單元全套 (30MB)</button>
+      <button class="btn-xs" id="btnDownloadCurrent" style="background: #2563eb; color: white; border-color: #2563eb;">📥 下載當前單元</button>
+      <button class="btn-xs" id="btnDownloadAll" style="background: #7c3aed; color: white; border-color: #7c3aed;">📥 下載全部 200 題 (30MB)</button>
       <button class="btn-xs" id="btnClearCache">🔄 清理快取</button>
     </div>
     <div class="cache-progress-bar" id="cacheProgressBar">
@@ -570,8 +629,12 @@
       });
     }
 
-    const dataWhen = [{"id": 1, "category": "第一類：身體需求與生理反應", "question": "你什麼時候喝水？", "answer": "口渴的時候。"}, {"id": 2, "category": "第一類：身體需求與生理反應", "question": "你什麼時候吃飯？", "answer": "肚子餓的時候。"}, {"id": 3, "category": "第一類：身體需求與生理反應", "question": "你什麼時候睡覺？", "answer": "想睡覺的時候。"}, {"id": 4, "category": "第一類：身體需求與生理反應", "question": "你什麼時候上廁所？", "answer": "想尿尿的時候。"}, {"id": 5, "category": "第一類：身體需求與生理反應", "question": "你什麼時候大便？", "answer": "想大便的時候。"}, {"id": 6, "category": "第一類：身體需求與生理反應", "question": "你什麼時候擦汗？", "answer": "流汗的時候。"}, {"id": 7, "category": "第一類：身體需求與生理反應", "question": "你什麼時候擦鼻涕？", "answer": "流鼻涕的時候。"}, {"id": 8, "category": "第一類：身體需求與生理反應", "question": "你什麼時候擤鼻涕？", "answer": "鼻涕很多的時候。"}, {"id": 9, "category": "第一類：身體需求與生理反應", "question": "你什麼時候洗手？", "answer": "手髒的時候。"}, {"id": 10, "category": "第一類：身體需求與生理反應", "question": "你什麼時候洗澡？", "answer": "身體髒的時候。"}, {"id": 11, "category": "第一類：身體需求與生理反應", "question": "你什麼時候休息？", "answer": "累的時候。"}, {"id": 12, "category": "第一類：身體需求與生理反應", "question": "你什麼時候打哈欠？", "answer": "想睡覺的時候。"}, {"id": 13, "category": "第一類：身體需求與生理反應", "question": "你什麼時候打噴嚏？", "answer": "鼻子癢的時候。"}, {"id": 14, "category": "第一類：身體需求與生理反應", "question": "你什麼時候咳嗽？", "answer": "喉嚨癢的時候。"}, {"id": 15, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會哭？", "answer": "傷心的時候。"}, {"id": 16, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會笑？", "answer": "開心的時候。"}, {"id": 17, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會害怕？", "answer": "遇到可怕事情的時候。"}, {"id": 18, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會生氣？", "answer": "不高興的時候。"}, {"id": 19, "category": "第一類：身體需求與生理反應", "question": "你什麼時候吃藥？", "answer": "生病需要吃藥的時候。"}, {"id": 20, "category": "第一類：身體需求與生理反應", "question": "你什麼時候看醫生？", "answer": "生病的時候。"}, {"id": 21, "category": "第二類：生活作息", "question": "你什麼時候起床？", "answer": "在早上。"}, {"id": 22, "category": "第二類：生活作息", "question": "你什麼時候吃早餐？", "answer": "在早上。"}, {"id": 23, "category": "第二類：生活作息", "question": "你什麼時候吃午餐？", "answer": "在中午。"}, {"id": 24, "category": "第二類：生活作息", "question": "你什麼時候吃晚餐？", "answer": "在晚上。"}, {"id": 25, "category": "第二類：生活作息", "question": "你什麼時候去上學？", "answer": "在早上。"}, {"id": 26, "category": "第二類：生活作息", "question": "你什麼時候放學？", "answer": "在下午。"}, {"id": 27, "category": "第二類：生活作息", "question": "你什麼時候刷牙？", "answer": "吃完飯後。"}, {"id": 28, "category": "第二類：生活作息", "question": "你什麼時候換睡衣？", "answer": "睡覺前。"}, {"id": 29, "category": "第二類：生活作息", "question": "你什麼時候脫睡衣？", "answer": "起床後。"}, {"id": 30, "category": "第二類：生活作息", "question": "你什麼時候穿鞋子？", "answer": "出門前。"}, {"id": 31, "category": "第二類：生活作息", "question": "你什麼時候脫鞋子？", "answer": "回家後。"}, {"id": 32, "category": "第二類：生活作息", "question": "你什麼時候背書包？", "answer": "上學的時候。"}, {"id": 33, "category": "第二類：生活作息", "question": "你什麼時候整理書包？", "answer": "上學前。"}, {"id": 34, "category": "第二類：生活作息", "question": "你什麼時候寫功課？", "answer": "放學後。"}, {"id": 35, "category": "第二類：生活作息", "question": "你什麼時候收玩具？", "answer": "玩完的時候。"}, {"id": 36, "category": "第二類：生活作息", "question": "你什麼時候關電視？", "answer": "不看的時候。"}, {"id": 37, "category": "第二類：生活作息", "question": "你什麼時候關燈？", "answer": "睡覺的時候。"}, {"id": 38, "category": "第二類：生活作息", "question": "你什麼時候開燈？", "answer": "天黑的時候。"}, {"id": 39, "category": "第二類：生活作息", "question": "你什麼時候拉開窗簾？", "answer": "早上起床後。"}, {"id": 40, "category": "第二類：生活作息", "question": "你什麼時候蓋棉被？", "answer": "睡覺的時候。"}, {"id": 41, "category": "第三類：穿著與天氣", "question": "你什麼時候穿外套？", "answer": "天氣冷的時候。"}, {"id": 42, "category": "第三類：穿著與天氣", "question": "你什麼時候脫外套？", "answer": "天氣熱的時候。"}, {"id": 43, "category": "第三類：穿著與天氣", "question": "你什麼時候穿雨衣？", "answer": "下雨的時候。"}, {"id": 44, "category": "第三類：穿著與天氣", "question": "你什麼時候撐雨傘？", "answer": "下雨的時候。"}, {"id": 45, "category": "第三類：穿著與天氣", "question": "你什麼時候穿雨鞋？", "answer": "下雨的時候。"}, {"id": 46, "category": "第三類：穿著與天氣", "question": "你什麼時候戴帽子？", "answer": "太陽很大的時候。"}, {"id": 47, "category": "第三類：穿著與天氣", "question": "你什麼時候戴手套？", "answer": "天氣冷的時候。"}, {"id": 48, "category": "第三類：穿著與天氣", "question": "你什麼時候圍圍巾？", "answer": "天氣冷的時候。"}, {"id": 49, "category": "第三類：穿著與天氣", "question": "你什麼時候穿短袖？", "answer": "天氣熱的時候。"}, {"id": 50, "category": "第三類：穿著與天氣", "question": "你什麼時候穿長袖？", "answer": "天氣冷的時候。"}, {"id": 51, "category": "第三類：穿著與天氣", "question": "你什麼時候開冷氣？", "answer": "天氣熱的時候。"}, {"id": 52, "category": "第三類：穿著與天氣", "question": "你什麼時候開電風扇？", "answer": "天氣熱的時候。"}, {"id": 53, "category": "第三類：穿著與天氣", "question": "你什麼時候放風箏？", "answer": "有風的時候。"}, {"id": 54, "category": "第三類：穿著與天氣", "question": "你什麼時候穿泳衣？", "answer": "游泳的時候。"}, {"id": 55, "category": "第三類：穿著與天氣", "question": "你什麼時候擦防曬乳？", "answer": "出門曬太陽前。"}, {"id": 56, "category": "第四類：學校與學習", "question": "你什麼時候舉手？", "answer": "想回答問題的時候。"}, {"id": 57, "category": "第四類：學校與學習", "question": "你什麼時候拿鉛筆？", "answer": "寫字的時候。"}, {"id": 58, "category": "第四類：學校與學習", "question": "你什麼時候拿橡皮擦？", "answer": "寫錯字的時候。"}, {"id": 59, "category": "第四類：學校與學習", "question": "你什麼時候拿剪刀？", "answer": "剪紙的時候。"}, {"id": 60, "category": "第四類：學校與學習", "question": "你什麼時候拿彩色筆？", "answer": "畫畫的時候。"}, {"id": 61, "category": "第四類：學校與學習", "question": "你什麼時候打開課本？", "answer": "上課的時候。"}, {"id": 62, "category": "第四類：學校與學習", "question": "你什麼時候收課本？", "answer": "下課的時候。"}, {"id": 63, "category": "第四類：學校與學習", "question": "你什麼時候排隊？", "answer": "全班集合的時候。"}, {"id": 64, "category": "第四類：學校與學習", "question": "你什麼時候去操場？", "answer": "上體育課的時候。"}, {"id": 65, "category": "第四類：學校與學習", "question": "你什麼時候跑步？", "answer": "運動的時候。"}, {"id": 66, "category": "第四類：學校與學習", "question": "你什麼時候坐在椅子上？", "answer": "上課的時候。"}, {"id": 67, "category": "第四類：學校與學習", "question": "你什麼時候聽老師說話？", "answer": "老師講話的時候。"}, {"id": 68, "category": "第四類：學校與學習", "question": "你什麼時候跟老師說再見？", "answer": "放學的時候。"}, {"id": 69, "category": "第四類：學校與學習", "question": "你什麼時候說謝謝？", "answer": "別人幫忙的時候。"}, {"id": 70, "category": "第四類：學校與學習", "question": "你什麼時候說對不起？", "answer": "做錯事的時候。"}, {"id": 71, "category": "第五類：外出與安全", "question": "你什麼時候繫安全帶？", "answer": "坐車的時候。"}, {"id": 72, "category": "第五類：外出與安全", "question": "你什麼時候戴安全帽？", "answer": "坐機車的時候。"}, {"id": 73, "category": "第五類：外出與安全", "question": "你什麼時候看紅綠燈？", "answer": "過馬路的時候。"}, {"id": 74, "category": "第五類：外出與安全", "question": "你什麼時候停下來？", "answer": "紅燈的時候。"}, {"id": 75, "category": "第五類：外出與安全", "question": "你什麼時候可以過馬路？", "answer": "綠燈而且安全的時候。"}, {"id": 76, "category": "第五類：外出與安全", "question": "你什麼時候牽大人的手？", "answer": "過馬路的時候。"}, {"id": 77, "category": "第五類：外出與安全", "question": "你什麼時候搭電梯？", "answer": "要上下樓的時候。"}, {"id": 78, "category": "第五類：外出與安全", "question": "你什麼時候按門鈴？", "answer": "到別人家門口的時候。"}, {"id": 79, "category": "第五類：外出與安全", "question": "你什麼時候敲門？", "answer": "進房間前。"}, {"id": 80, "category": "第五類：外出與安全", "question": "你什麼時候買東西？", "answer": "需要東西的時候。"}, {"id": 81, "category": "第五類：外出與安全", "question": "你什麼時候付錢？", "answer": "買東西的時候。"}, {"id": 82, "category": "第五類：外出與安全", "question": "你什麼時候去公園？", "answer": "想玩遊具的時候。"}, {"id": 83, "category": "第五類：外出與安全", "question": "你什麼時候溜滑梯？", "answer": "去遊樂場玩的時候。"}, {"id": 84, "category": "第五類：外出與安全", "question": "你什麼時候戴口罩？", "answer": "生病需要防止傳染的時候。"}, {"id": 85, "category": "第五類：外出與安全", "question": "你什麼時候找大人幫忙？", "answer": "遇到困難的時候。"}, {"id": 86, "category": "第六類：季節、節日與事件", "question": "花什麼時候開？", "answer": "在春天。"}, {"id": 87, "category": "第六類：季節、節日與事件", "question": "葉子什麼時候變黃？", "answer": "在秋天。"}, {"id": 88, "category": "第六類：季節、節日與事件", "question": "天氣什麼時候比較熱？", "answer": "在夏天。"}, {"id": 89, "category": "第六類：季節、節日與事件", "question": "天氣什麼時候比較冷？", "answer": "在冬天。"}, {"id": 90, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃生日蛋糕？", "answer": "生日的時候。"}, {"id": 91, "category": "第六類：季節、節日與事件", "question": "你什麼時候吹蠟燭？", "answer": "過生日的時候。"}, {"id": 92, "category": "第六類：季節、節日與事件", "question": "你什麼時候收到生日禮物？", "answer": "過生日的時候。"}, {"id": 93, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃月餅？", "answer": "中秋節的時候。"}, {"id": 94, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃粽子？", "answer": "端午節的時候。"}, {"id": 95, "category": "第六類：季節、節日與事件", "question": "你什麼時候領紅包？", "answer": "過年的時候。"}, {"id": 96, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃年夜飯？", "answer": "除夕的時候。"}, {"id": 97, "category": "第六類：季節、節日與事件", "question": "你什麼時候看煙火？", "answer": "有煙火表演的時候。"}, {"id": 98, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃冰淇淋？", "answer": "想吃冰淇淋的時候。"}, {"id": 99, "category": "第六類：季節、節日與事件", "question": "你什麼時候拍照片？", "answer": "想留下紀念的時候。"}, {"id": 100, "category": "第六類：季節、節日與事件", "question": "你什麼時候說晚安？", "answer": "睡覺前。"}];
-    const dataWhy = [{"id": 1, "category": "第一類：身體需求與日常生活", "question": "為什麼要喝水？", "answer": "因為口渴了。"}, {"id": 2, "category": "第一類：身體需求與日常生活", "question": "為什麼要吃飯？", "answer": "因為肚子餓了。"}, {"id": 3, "category": "第一類：身體需求與日常生活", "question": "為什麼要睡覺？", "answer": "因為身體需要休息。"}, {"id": 4, "category": "第一類：身體需求與日常生活", "question": "為什麼要上廁所？", "answer": "因為想尿尿。"}, {"id": 5, "category": "第一類：身體需求與日常生活", "question": "為什麼要擦汗？", "answer": "因為流汗了。"}, {"id": 6, "category": "第一類：身體需求與日常生活", "question": "為什麼要擦鼻涕？", "answer": "因為流鼻涕了。"}, {"id": 7, "category": "第一類：身體需求與日常生活", "question": "為什麼要洗手？", "answer": "因為手髒了。"}, {"id": 8, "category": "第一類：身體需求與日常生活", "question": "為什麼要洗澡？", "answer": "因為身體髒了。"}, {"id": 9, "category": "第一類：身體需求與日常生活", "question": "為什麼要休息？", "answer": "因為累了。"}, {"id": 10, "category": "第一類：身體需求與日常生活", "question": "為什麼要看醫生？", "answer": "因為生病了。"}, {"id": 11, "category": "第一類：身體需求與日常生活", "question": "為什麼要刷牙？", "answer": "因為要清潔牙齒。"}, {"id": 12, "category": "第一類：身體需求與日常生活", "question": "為什麼要剪指甲？", "answer": "因為指甲太長了。"}, {"id": 13, "category": "第一類：身體需求與日常生活", "question": "為什麼要洗頭？", "answer": "因為頭髮髒了。"}, {"id": 14, "category": "第一類：身體需求與日常生活", "question": "為什麼要梳頭髮？", "answer": "因為頭髮亂了。"}, {"id": 15, "category": "第一類：身體需求與日常生活", "question": "為什麼要換衣服？", "answer": "因為衣服髒了。"}, {"id": 16, "category": "第一類：身體需求與日常生活", "question": "為什麼要穿鞋子？", "answer": "因為要保護腳。"}, {"id": 17, "category": "第一類：身體需求與日常生活", "question": "為什麼要蓋棉被？", "answer": "因為天氣冷。"}, {"id": 18, "category": "第一類：身體需求與日常生活", "question": "為什麼要開電燈？", "answer": "因為房間太暗。"}, {"id": 19, "category": "第一類：身體需求與日常生活", "question": "為什麼要關水龍頭？", "answer": "因為要節約用水。"}, {"id": 20, "category": "第一類：身體需求與日常生活", "question": "為什麼要收玩具？", "answer": "因為玩完了。"}, {"id": 21, "category": "第二類：天氣、穿著與環境", "question": "為什麼要穿外套？", "answer": "因為天氣冷。"}, {"id": 22, "category": "第二類：天氣、穿著與環境", "question": "為什麼要脫外套？", "answer": "因為天氣熱。"}, {"id": 23, "category": "第二類：天氣、穿著與環境", "question": "為什麼要撐雨傘？", "answer": "因為下雨了。"}, {"id": 24, "category": "第二類：天氣、穿著與環境", "question": "為什麼要穿雨衣？", "answer": "因為要擋雨。"}, {"id": 25, "category": "第二類：天氣、穿著與環境", "question": "為什麼要穿雨鞋？", "answer": "因為地上有積水。"}, {"id": 26, "category": "第二類：天氣、穿著與環境", "question": "為什麼要戴帽子？", "answer": "因為太陽很大。"}, {"id": 27, "category": "第二類：天氣、穿著與環境", "question": "為什麼要擦防曬乳？", "answer": "因為要保護皮膚。"}, {"id": 28, "category": "第二類：天氣、穿著與環境", "question": "為什麼要開冷氣？", "answer": "因為天氣太熱。"}, {"id": 29, "category": "第二類：天氣、穿著與環境", "question": "為什麼要開電風扇？", "answer": "因為想涼快一點。"}, {"id": 30, "category": "第二類：天氣、穿著與環境", "question": "為什麼要關窗戶？", "answer": "因為外面下雨了。"}, {"id": 31, "category": "第二類：天氣、穿著與環境", "question": "為什麼要開窗戶？", "answer": "因為要讓空氣流通。"}, {"id": 32, "category": "第二類：天氣、穿著與環境", "question": "為什麼地板會濕？", "answer": "因為水灑出來了。"}, {"id": 33, "category": "第二類：天氣、穿著與環境", "question": "為什麼衣服會濕？", "answer": "因為被雨淋到了。"}, {"id": 34, "category": "第二類：天氣、穿著與環境", "question": "為什麼冰塊會融化？", "answer": "因為溫度升高了。"}, {"id": 35, "category": "第二類：天氣、穿著與環境", "question": "為什麼水會結冰？", "answer": "因為溫度很低。"}, {"id": 36, "category": "第二類：天氣、穿著與環境", "question": "為什麼樹葉會搖動？", "answer": "因為風吹動樹葉。"}, {"id": 37, "category": "第二類：天氣、穿著與環境", "question": "為什麼天黑了要開燈？", "answer": "因為要看清楚。"}, {"id": 38, "category": "第二類：天氣、穿著與環境", "question": "為什麼下雨天要慢慢走？", "answer": "因為地板可能很滑。"}, {"id": 39, "category": "第二類：天氣、穿著與環境", "question": "為什麼夏天容易流汗？", "answer": "因為天氣熱。"}, {"id": 40, "category": "第二類：天氣、穿著與環境", "question": "為什麼冬天要穿厚衣服？", "answer": "因為要保暖。"}, {"id": 41, "category": "第三類：學校與外出安全", "question": "為什麼要背書包？", "answer": "因為要帶課本。"}, {"id": 42, "category": "第三類：學校與外出安全", "question": "為什麼要帶鉛筆？", "answer": "因為要寫字。"}, {"id": 43, "category": "第三類：學校與外出安全", "question": "為什麼要帶橡皮擦？", "answer": "因為要擦錯字。"}, {"id": 44, "category": "第三類：學校與外出安全", "question": "為什麼要寫功課？", "answer": "因為要練習。"}, {"id": 45, "category": "第三類：學校與外出安全", "question": "為什麼要讀書？", "answer": "因為要學知識。"}, {"id": 46, "category": "第三類：學校與外出安全", "question": "為什麼要舉手？", "answer": "因為想回答問題。"}, {"id": 47, "category": "第三類：學校與外出安全", "question": "為什麼要聽老師說話？", "answer": "因為老師正在教學。"}, {"id": 48, "category": "第三類：學校與外出安全", "question": "為什麼要排隊？", "answer": "因為要輪流。"}, {"id": 49, "category": "第三類：學校與外出安全", "question": "為什麼要問老師？", "answer": "因為有不懂的地方。"}, {"id": 50, "category": "第三類：學校與外出安全", "question": "為什麼要訂正錯字？", "answer": "因為要改正錯誤。"}, {"id": 51, "category": "第三類：學校與外出安全", "question": "為什麼坐車要繫安全帶？", "answer": "因為要保護身體。"}, {"id": 52, "category": "第三類：學校與外出安全", "question": "為什麼坐機車要戴安全帽？", "answer": "因為要保護頭部。"}, {"id": 53, "category": "第三類：學校與外出安全", "question": "為什麼過馬路要看車？", "answer": "因為要注意安全。"}, {"id": 54, "category": "第三類：學校與外出安全", "question": "為什麼紅燈要停下來？", "answer": "因為現在不能通行。"}, {"id": 55, "category": "第三類：學校與外出安全", "question": "為什麼要走斑馬線？", "answer": "因為過馬路比較安全。"}, {"id": 56, "category": "第三類：學校與外出安全", "question": "為什麼不能衝到馬路上？", "answer": "因為可能被車撞到。"}, {"id": 57, "category": "第三類：學校與外出安全", "question": "為什麼下樓梯要扶扶手？", "answer": "因為可以保持平衡。"}, {"id": 58, "category": "第三類：學校與外出安全", "question": "為什麼不能摸熱鍋子？", "answer": "因為會燙傷。"}, {"id": 59, "category": "第三類：學校與外出安全", "question": "為什麼游泳要有大人陪？", "answer": "因為水裡可能有危險。"}, {"id": 60, "category": "第三類：學校與外出安全", "question": "為什麼迷路要找人幫忙？", "answer": "因為需要找到家人。"}, {"id": 61, "category": "第四類：情緒與人際互動", "question": "為什麼收到禮物會開心？", "answer": "因為得到喜歡的東西。"}, {"id": 62, "category": "第四類：情緒與人際互動", "question": "為什麼玩具壞掉會難過？", "answer": "因為不能玩了。"}, {"id": 63, "category": "第四類：情緒與人際互動", "question": "為什麼找不到媽媽會著急？", "answer": "因為不知道媽媽在哪裡。"}, {"id": 64, "category": "第四類：情緒與人際互動", "question": "為什麼看到可怕的東西會害怕？", "answer": "因為擔心有危險。"}, {"id": 65, "category": "第四類：情緒與人際互動", "question": "為什麼等太久會不耐煩？", "answer": "因為想快點輪到自己。"}, {"id": 66, "category": "第四類：情緒與人際互動", "question": "為什麼被稱讚會開心？", "answer": "因為受到肯定。"}, {"id": 67, "category": "第四類：情緒與人際互動", "question": "為什麼輸了遊戲可能會失望？", "answer": "因為原本想贏。"}, {"id": 68, "category": "第四類：情緒與人際互動", "question": "為什麼肚子餓時容易生氣？", "answer": "因為肚子不舒服。"}, {"id": 69, "category": "第四類：情緒與人際互動", "question": "為什麼生病時不想玩？", "answer": "因為身體不舒服。"}, {"id": 70, "category": "第四類：情緒與人際互動", "question": "為什麼聲音太大會摀耳朵？", "answer": "因為聲音不舒服。"}, {"id": 71, "category": "第四類：情緒與人際互動", "question": "為什麼別人幫忙要說謝謝？", "answer": "因為要表達感謝。"}, {"id": 72, "category": "第四類：情緒與人際互動", "question": "為什麼做錯事要說對不起？", "answer": "因為要表達歉意。"}, {"id": 73, "category": "第四類：情緒與人際互動", "question": "為什麼要輪流玩玩具？", "answer": "因為大家都有機會玩。"}, {"id": 74, "category": "第四類：情緒與人際互動", "question": "為什麼不能搶別人的東西？", "answer": "因為東西是別人的。"}, {"id": 75, "category": "第四類：情緒與人際互動", "question": "為什麼借東西要先問？", "answer": "因為要得到同意。"}, {"id": 76, "category": "第四類：情緒與人際互動", "question": "為什麼不能故意推人？", "answer": "因為別人可能受傷。"}, {"id": 77, "category": "第四類：情緒與人際互動", "question": "為什麼朋友跌倒要關心？", "answer": "因為朋友可能受傷。"}, {"id": 78, "category": "第四類：情緒與人際互動", "question": "為什麼要等別人說完話？", "answer": "因為要聽清楚。"}, {"id": 79, "category": "第四類：情緒與人際互動", "question": "為什麼不舒服要告訴大人？", "answer": "因為可以得到幫忙。"}, {"id": 80, "category": "第四類：情緒與人際互動", "question": "為什麼不想玩可以說不要？", "answer": "因為可以表達自己的想法。"}, {"id": 81, "category": "第五類：生活情境與因果推理", "question": "小明沒帶雨傘，為什麼衣服濕了？", "answer": "因為被雨淋濕。"}, {"id": 82, "category": "第五類：生活情境與因果推理", "question": "小華跑得太快，為什麼跌倒了？", "answer": "因為沒有站穩。"}, {"id": 83, "category": "第五類：生活情境與因果推理", "question": "小美沒吃早餐，為什麼肚子叫？", "answer": "因為肚子餓。"}, {"id": 84, "category": "第五類：生活情境與因果推理", "question": "小明昨晚很晚睡，為什麼早上想睡？", "answer": "因為睡眠不足。"}, {"id": 85, "category": "第五類：生活情境與因果推理", "question": "小華一直跑步，為什麼流汗？", "answer": "因為身體在散熱。"}, {"id": 86, "category": "第五類：生活情境與因果推理", "question": "小美喝了很多水，為什麼想尿尿？", "answer": "因為膀胱裝了尿液。"}, {"id": 87, "category": "第五類：生活情境與因果推理", "question": "小明忘記帶書包，為什麼沒有課本？", "answer": "因為課本在書包裡。"}, {"id": 88, "category": "第五類：生活情境與因果推理", "question": "小華的水壺空了，為什麼去裝水？", "answer": "因為沒有水可以喝。"}, {"id": 89, "category": "第五類：生活情境與因果推理", "question": "小美的鞋帶鬆了，為什麼停下來？", "answer": "因為要綁鞋帶。"}, {"id": 90, "category": "第五類：生活情境與因果推理", "question": "小明的玩具沒電了，為什麼不能動？", "answer": "因為沒有電力。"}, {"id": 91, "category": "第五類：生活情境與因果推理", "question": "小華把水打翻了，為什麼要擦桌子？", "answer": "因為桌子濕了。"}, {"id": 92, "category": "第五類：生活情境與因果推理", "question": "小美的氣球碰到尖刺，為什麼破掉？", "answer": "因為被刺破了。"}, {"id": 93, "category": "第五類：生活情境與因果推理", "question": "小明把冰塊放在太陽下，為什麼變成水？", "answer": "因為冰塊融化了。"}, {"id": 94, "category": "第五類：生活情境與因果推理", "question": "小華把水放進冷凍庫，為什麼結冰？", "answer": "因為溫度很低。"}, {"id": 95, "category": "第五類：生活情境與因果推理", "question": "小美把濕衣服掛起來，為什麼後來乾了？", "answer": "因為水蒸發了。"}, {"id": 96, "category": "第五類：生活情境與因果推理", "question": "小明忘記關水龍頭，為什麼水一直流？", "answer": "因為水龍頭還開著。"}, {"id": 97, "category": "第五類：生活情境與因果推理", "question": "小華沒澆花，為什麼花枯萎了？", "answer": "因為缺少水分。"}, {"id": 98, "category": "第五類：生活情境與因果推理", "question": "小美忘記帶鑰匙，為什麼進不了家門？", "answer": "因為門鎖著。"}, {"id": 99, "category": "第五類：生活情境與因果推理", "question": "小明跑步沒有看前面，為什麼撞到椅子？", "answer": "因為沒注意前面的障礙物。"}, {"id": 100, "category": "第五類：生活情境與因果推理", "question": "小華走進暗暗的房間，為什麼開燈？", "answer": "因為想看清楚。"}];
+    const rawWhen = [{"id": 1, "category": "第一類：身體需求與生理反應", "question": "你什麼時候喝水？", "answer": "口渴的時候。"}, {"id": 2, "category": "第一類：身體需求與生理反應", "question": "你什麼時候吃飯？", "answer": "肚子餓的時候。"}, {"id": 3, "category": "第一類：身體需求與生理反應", "question": "你什麼時候睡覺？", "answer": "想睡覺的時候。"}, {"id": 4, "category": "第一類：身體需求與生理反應", "question": "你什麼時候上廁所？", "answer": "想尿尿的時候。"}, {"id": 5, "category": "第一類：身體需求與生理反應", "question": "你什麼時候大便？", "answer": "想大便的時候。"}, {"id": 6, "category": "第一類：身體需求與生理反應", "question": "你什麼時候擦汗？", "answer": "流汗的時候。"}, {"id": 7, "category": "第一類：身體需求與生理反應", "question": "你什麼時候擦鼻涕？", "answer": "流鼻涕的時候。"}, {"id": 8, "category": "第一類：身體需求與生理反應", "question": "你什麼時候擤鼻涕？", "answer": "鼻涕很多的時候。"}, {"id": 9, "category": "第一類：身體需求與生理反應", "question": "你什麼時候洗手？", "answer": "手髒的時候。"}, {"id": 10, "category": "第一類：身體需求與生理反應", "question": "你什麼時候洗澡？", "answer": "身體髒的時候。"}, {"id": 11, "category": "第一類：身體需求與生理反應", "question": "你什麼時候休息？", "answer": "累的時候。"}, {"id": 12, "category": "第一類：身體需求與生理反應", "question": "你什麼時候打哈欠？", "answer": "想睡覺的時候。"}, {"id": 13, "category": "第一類：身體需求與生理反應", "question": "你什麼時候打噴嚏？", "answer": "鼻子癢的時候。"}, {"id": 14, "category": "第一類：身體需求與生理反應", "question": "你什麼時候咳嗽？", "answer": "喉嚨癢的時候。"}, {"id": 15, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會哭？", "answer": "傷心的時候。"}, {"id": 16, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會笑？", "answer": "開心的時候。"}, {"id": 17, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會害怕？", "answer": "遇到可怕事情的時候。"}, {"id": 18, "category": "第一類：身體需求與生理反應", "question": "你什麼時候會生氣？", "answer": "不高興的時候。"}, {"id": 19, "category": "第一類：身體需求與生理反應", "question": "你什麼時候吃藥？", "answer": "生病需要吃藥的時候。"}, {"id": 20, "category": "第一類：身體需求與生理反應", "question": "你什麼時候看醫生？", "answer": "生病的時候。"}, {"id": 21, "category": "第二類：生活作息", "question": "你什麼時候起床？", "answer": "在早上。"}, {"id": 22, "category": "第二類：生活作息", "question": "你什麼時候吃早餐？", "answer": "在早上。"}, {"id": 23, "category": "第二類：生活作息", "question": "你什麼時候吃午餐？", "answer": "在中午。"}, {"id": 24, "category": "第二類：生活作息", "question": "你什麼時候吃晚餐？", "answer": "在晚上。"}, {"id": 25, "category": "第二類：生活作息", "question": "你什麼時候去上學？", "answer": "在早上。"}, {"id": 26, "category": "第二類：生活作息", "question": "你什麼時候放學？", "answer": "在下午。"}, {"id": 27, "category": "第二類：生活作息", "question": "你什麼時候刷牙？", "answer": "吃完飯後。"}, {"id": 28, "category": "第二類：生活作息", "question": "你什麼時候換睡衣？", "answer": "睡覺前。"}, {"id": 29, "category": "第二類：生活作息", "question": "你什麼時候脫睡衣？", "answer": "起床後。"}, {"id": 30, "category": "第二類：生活作息", "question": "你什麼時候穿鞋子？", "answer": "出門前。"}, {"id": 31, "category": "第二類：生活作息", "question": "你什麼時候脫鞋子？", "answer": "回家後。"}, {"id": 32, "category": "第二類：生活作息", "question": "你什麼時候背書包？", "answer": "上學的時候。"}, {"id": 33, "category": "第二類：生活作息", "question": "你什麼時候整理書包？", "answer": "上學前。"}, {"id": 34, "category": "第二類：生活作息", "question": "你什麼時候寫功課？", "answer": "放學後。"}, {"id": 35, "category": "第二類：生活作息", "question": "你什麼時候收玩具？", "answer": "玩完的時候。"}, {"id": 36, "category": "第二類：生活作息", "question": "你什麼時候關電視？", "answer": "不看的時候。"}, {"id": 37, "category": "第二類：生活作息", "question": "你什麼時候關燈？", "answer": "睡覺的時候。"}, {"id": 38, "category": "第二類：生活作息", "question": "你什麼時候開燈？", "answer": "天黑的時候。"}, {"id": 39, "category": "第二類：生活作息", "question": "你什麼時候拉開窗簾？", "answer": "早上起床後。"}, {"id": 40, "category": "第二類：生活作息", "question": "你什麼時候蓋棉被？", "answer": "睡覺的時候。"}, {"id": 41, "category": "第三類：穿著與天氣", "question": "你什麼時候穿外套？", "answer": "天氣冷的時候。"}, {"id": 42, "category": "第三類：穿著與天氣", "question": "你什麼時候脫外套？", "answer": "天氣熱的時候。"}, {"id": 43, "category": "第三類：穿著與天氣", "question": "你什麼時候穿雨衣？", "answer": "下雨的時候。"}, {"id": 44, "category": "第三類：穿著與天氣", "question": "你什麼時候撐雨傘？", "answer": "下雨的時候。"}, {"id": 45, "category": "第三類：穿著與天氣", "question": "你什麼時候穿雨鞋？", "answer": "下雨的時候。"}, {"id": 46, "category": "第三類：穿著與天氣", "question": "你什麼時候戴帽子？", "answer": "太陽很大的時候。"}, {"id": 47, "category": "第三類：穿著與天氣", "question": "你什麼時候戴手套？", "answer": "天氣冷的時候。"}, {"id": 48, "category": "第三類：穿著與天氣", "question": "你什麼時候圍圍巾？", "answer": "天氣冷的時候。"}, {"id": 49, "category": "第三類：穿著與天氣", "question": "你什麼時候穿短袖？", "answer": "天氣熱的時候。"}, {"id": 50, "category": "第三類：穿著與天氣", "question": "你什麼時候穿長袖？", "answer": "天氣冷的時候。"}, {"id": 51, "category": "第三類：穿著與天氣", "question": "你什麼時候開冷氣？", "answer": "天氣熱的時候。"}, {"id": 52, "category": "第三類：穿著與天氣", "question": "你什麼時候開電風扇？", "answer": "天氣熱的時候。"}, {"id": 53, "category": "第三類：穿著與天氣", "question": "你什麼時候放風箏？", "answer": "有風的時候。"}, {"id": 54, "category": "第三類：穿著與天氣", "question": "你什麼時候穿泳衣？", "answer": "游泳的時候。"}, {"id": 55, "category": "第三類：穿著與天氣", "question": "你什麼時候擦防曬乳？", "answer": "出門曬太陽前。"}, {"id": 56, "category": "第四類：學校與學習", "question": "你什麼時候舉手？", "answer": "想回答問題的時候。"}, {"id": 57, "category": "第四類：學校與學習", "question": "你什麼時候拿鉛筆？", "answer": "寫字的時候。"}, {"id": 58, "category": "第四類：學校與學習", "question": "你什麼時候拿橡皮擦？", "answer": "寫錯字的時候。"}, {"id": 59, "category": "第四類：學校與學習", "question": "你什麼時候拿剪刀？", "answer": "剪紙的時候。"}, {"id": 60, "category": "第四類：學校與學習", "question": "你什麼時候拿彩色筆？", "answer": "畫畫的時候。"}, {"id": 61, "category": "第四類：學校與學習", "question": "你什麼時候打開課本？", "answer": "上課的時候。"}, {"id": 62, "category": "第四類：學校與學習", "question": "你什麼時候收課本？", "answer": "下課的時候。"}, {"id": 63, "category": "第四類：學校與學習", "question": "你什麼時候排隊？", "answer": "全班集合的時候。"}, {"id": 64, "category": "第四類：學校與學習", "question": "你什麼時候去操場？", "answer": "上體育課的時候。"}, {"id": 65, "category": "第四類：學校與學習", "question": "你什麼時候跑步？", "answer": "運動的時候。"}, {"id": 66, "category": "第四類：學校與學習", "question": "你什麼時候坐在椅子上？", "answer": "上課的時候。"}, {"id": 67, "category": "第四類：學校與學習", "question": "你什麼時候聽老師說話？", "answer": "老師講話的時候。"}, {"id": 68, "category": "第四類：學校與學習", "question": "你什麼時候跟老師說再見？", "answer": "放學的時候。"}, {"id": 69, "category": "第四類：學校與學習", "question": "你什麼時候說謝謝？", "answer": "別人幫忙的時候。"}, {"id": 70, "category": "第四類：學校與學習", "question": "你什麼時候說對不起？", "answer": "做錯事的時候。"}, {"id": 71, "category": "第五類：外出與安全", "question": "你什麼時候繫安全帶？", "answer": "坐車的時候。"}, {"id": 72, "category": "第五類：外出與安全", "question": "你什麼時候戴安全帽？", "answer": "坐機車的時候。"}, {"id": 73, "category": "第五類：外出與安全", "question": "你什麼時候看紅綠燈？", "answer": "過馬路的時候。"}, {"id": 74, "category": "第五類：外出與安全", "question": "你什麼時候停下來？", "answer": "紅燈的時候。"}, {"id": 75, "category": "第五類：外出與安全", "question": "你什麼時候可以過馬路？", "answer": "綠燈而且安全的時候。"}, {"id": 76, "category": "第五類：外出與安全", "question": "你什麼時候牽大人的手？", "answer": "過馬路的時候。"}, {"id": 77, "category": "第五類：外出與安全", "question": "你什麼時候搭電梯？", "answer": "要上下樓的時候。"}, {"id": 78, "category": "第五類：外出與安全", "question": "你什麼時候按門鈴？", "answer": "到別人家門口的時候。"}, {"id": 79, "category": "第五類：外出與安全", "question": "你什麼時候敲門？", "answer": "進房間前。"}, {"id": 80, "category": "第五類：外出與安全", "question": "你什麼時候買東西？", "answer": "需要東西的時候。"}, {"id": 81, "category": "第五類：外出與安全", "question": "你什麼時候付錢？", "answer": "買東西的時候。"}, {"id": 82, "category": "第五類：外出與安全", "question": "你什麼時候去公園？", "answer": "想玩遊具的時候。"}, {"id": 83, "category": "第五類：外出與安全", "question": "你什麼時候溜滑梯？", "answer": "去遊樂場玩的時候。"}, {"id": 84, "category": "第五類：外出與安全", "question": "你什麼時候戴口罩？", "answer": "生病需要防止傳染的時候。"}, {"id": 85, "category": "第五類：外出與安全", "question": "你什麼時候找大人幫忙？", "answer": "遇到困難的時候。"}, {"id": 86, "category": "第六類：季節、節日與事件", "question": "花什麼時候開？", "answer": "在春天。"}, {"id": 87, "category": "第六類：季節、節日與事件", "question": "葉子什麼時候變黃？", "answer": "在秋天。"}, {"id": 88, "category": "第六類：季節、節日與事件", "question": "天氣什麼時候比較熱？", "answer": "在夏天。"}, {"id": 89, "category": "第六類：季節、節日與事件", "question": "天氣什麼時候比較冷？", "answer": "在冬天。"}, {"id": 90, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃生日蛋糕？", "answer": "生日的時候。"}, {"id": 91, "category": "第六類：季節、節日與事件", "question": "你什麼時候吹蠟燭？", "answer": "過生日的時候。"}, {"id": 92, "category": "第六類：季節、節日與事件", "question": "你什麼時候收到生日禮物？", "answer": "過生日的時候。"}, {"id": 93, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃月餅？", "answer": "中秋節的時候。"}, {"id": 94, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃粽子？", "answer": "端午節的時候。"}, {"id": 95, "category": "第六類：季節、節日與事件", "question": "你什麼時候領紅包？", "answer": "過年的時候。"}, {"id": 96, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃年夜飯？", "answer": "除夕的時候。"}, {"id": 97, "category": "第六類：季節、節日與事件", "question": "你什麼時候看煙火？", "answer": "有煙火表演的時候。"}, {"id": 98, "category": "第六類：季節、節日與事件", "question": "你什麼時候吃冰淇淋？", "answer": "想吃冰淇淋的時候。"}, {"id": 99, "category": "第六類：季節、節日與事件", "question": "你什麼時候拍照片？", "answer": "想留下紀念的時候。"}, {"id": 100, "category": "第六類：季節、節日與事件", "question": "你什麼時候說晚安？", "answer": "睡覺前。"}];
+    const rawWhy = [{"id": 1, "category": "第一類：身體需求與日常生活", "question": "為什麼要喝水？", "answer": "因為口渴了。"}, {"id": 2, "category": "第一類：身體需求與日常生活", "question": "為什麼要吃飯？", "answer": "因為肚子餓了。"}, {"id": 3, "category": "第一類：身體需求與日常生活", "question": "為什麼要睡覺？", "answer": "因為身體需要休息。"}, {"id": 4, "category": "第一類：身體需求與日常生活", "question": "為什麼要上廁所？", "answer": "因為想尿尿。"}, {"id": 5, "category": "第一類：身體需求與日常生活", "question": "為什麼要擦汗？", "answer": "因為流汗了。"}, {"id": 6, "category": "第一類：身體需求與日常生活", "question": "為什麼要擦鼻涕？", "answer": "因為流鼻涕了。"}, {"id": 7, "category": "第一類：身體需求與日常生活", "question": "為什麼要洗手？", "answer": "因為手髒了。"}, {"id": 8, "category": "第一類：身體需求與日常生活", "question": "為什麼要洗澡？", "answer": "因為身體髒了。"}, {"id": 9, "category": "第一類：身體需求與日常生活", "question": "為什麼要休息？", "answer": "因為累了。"}, {"id": 10, "category": "第一類：身體需求與日常生活", "question": "為什麼要看醫生？", "answer": "因為生病了。"}, {"id": 11, "category": "第一類：身體需求與日常生活", "question": "為什麼要刷牙？", "answer": "因為要清潔牙齒。"}, {"id": 12, "category": "第一類：身體需求與日常生活", "question": "為什麼要剪指甲？", "answer": "因為指甲太長了。"}, {"id": 13, "category": "第一類：身體需求與日常生活", "question": "為什麼要洗頭？", "answer": "因為頭髮髒了。"}, {"id": 14, "category": "第一類：身體需求與日常生活", "question": "為什麼要梳頭髮？", "answer": "因為頭髮亂了。"}, {"id": 15, "category": "第一類：身體需求與日常生活", "question": "為什麼要換衣服？", "answer": "因為衣服髒了。"}, {"id": 16, "category": "第一類：身體需求與日常生活", "question": "為什麼要穿鞋子？", "answer": "因為要保護腳。"}, {"id": 17, "category": "第一類：身體需求與日常生活", "question": "為什麼要蓋棉被？", "answer": "因為天氣冷。"}, {"id": 18, "category": "第一類：身體需求與日常生活", "question": "為什麼要開電燈？", "answer": "因為房間太暗。"}, {"id": 19, "category": "第一類：身體需求與日常生活", "question": "為什麼要關水龍頭？", "answer": "因為要節約用水。"}, {"id": 20, "category": "第一類：身體需求與日常生活", "question": "為什麼要收玩具？", "answer": "因為玩完了。"}, {"id": 21, "category": "第二類：天氣、穿著與環境", "question": "為什麼要穿外套？", "answer": "因為天氣冷。"}, {"id": 22, "category": "第二類：天氣、穿著與環境", "question": "為什麼要脫外套？", "answer": "因為天氣熱。"}, {"id": 23, "category": "第二類：天氣、穿著與環境", "question": "為什麼要撐雨傘？", "answer": "因為下雨了。"}, {"id": 24, "category": "第二類：天氣、穿著與環境", "question": "為什麼要穿雨衣？", "answer": "因為要擋雨。"}, {"id": 25, "category": "第二類：天氣、穿著與環境", "question": "為什麼要穿雨鞋？", "answer": "因為地上有積水。"}, {"id": 26, "category": "第二類：天氣、穿著與環境", "question": "為什麼要戴帽子？", "answer": "因為太陽很大。"}, {"id": 27, "category": "第二類：天氣、穿著與環境", "question": "為什麼要擦防曬乳？", "answer": "因為要保護皮膚。"}, {"id": 28, "category": "第二類：天氣、穿著與環境", "question": "為什麼要開冷氣？", "answer": "因為天氣太熱。"}, {"id": 29, "category": "第二類：天氣、穿著與環境", "question": "為什麼要開電風扇？", "answer": "因為想涼快一點。"}, {"id": 30, "category": "第二類：天氣、穿著與環境", "question": "為什麼要關窗戶？", "answer": "因為外面下雨了。"}, {"id": 31, "category": "第二類：天氣、穿著與環境", "question": "為什麼要開窗戶？", "answer": "因為要讓空氣流通。"}, {"id": 32, "category": "第二類：天氣、穿著與環境", "question": "為什麼地板會濕？", "answer": "因為水灑出來了。"}, {"id": 33, "category": "第二類：天氣、穿著與環境", "question": "為什麼衣服會濕？", "answer": "因為被雨淋到了。"}, {"id": 34, "category": "第二類：天氣、穿著與環境", "question": "為什麼冰塊會融化？", "answer": "因為溫度升高了。"}, {"id": 35, "category": "第二類：天氣、穿著與環境", "question": "為什麼水會結冰？", "answer": "因為溫度很低。"}, {"id": 36, "category": "第二類：天氣、穿著與環境", "question": "為什麼樹葉會搖動？", "answer": "因為風吹動樹葉。"}, {"id": 37, "category": "第二類：天氣、穿著與環境", "question": "為什麼天黑了要開燈？", "answer": "因為要看清楚。"}, {"id": 38, "category": "第二類：天氣、穿著與環境", "question": "為什麼下雨天要慢慢走？", "answer": "因為地板可能很滑。"}, {"id": 39, "category": "第二類：天氣、穿著與環境", "question": "為什麼夏天容易流汗？", "answer": "因為天氣熱。"}, {"id": 40, "category": "第二類：天氣、穿著與環境", "question": "為什麼冬天要穿厚衣服？", "answer": "因為要保暖。"}, {"id": 41, "category": "第三類：學校與外出安全", "question": "為什麼要背書包？", "answer": "因為要帶課本。"}, {"id": 42, "category": "第三類：學校與外出安全", "question": "為什麼要帶鉛筆？", "answer": "因為要寫字。"}, {"id": 43, "category": "第三類：學校與外出安全", "question": "為什麼要帶橡皮擦？", "answer": "因為要擦錯字。"}, {"id": 44, "category": "第三類：學校與外出安全", "question": "為什麼要寫功課？", "answer": "因為要練習。"}, {"id": 45, "category": "第三類：學校與外出安全", "question": "為什麼要讀書？", "answer": "因為要學知識。"}, {"id": 46, "category": "第三類：學校與外出安全", "question": "為什麼要舉手？", "answer": "因為想回答問題。"}, {"id": 47, "category": "第三類：學校與外出安全", "question": "為什麼要聽老師說話？", "answer": "因為老師正在教學。"}, {"id": 48, "category": "第三類：學校與外出安全", "question": "為什麼要排隊？", "answer": "因為要輪流。"}, {"id": 49, "category": "第三類：學校與外出安全", "question": "為什麼要問老師？", "answer": "因為有不懂的地方。"}, {"id": 50, "category": "第三類：學校與外出安全", "question": "為什麼要訂正錯字？", "answer": "因為要改正錯誤。"}, {"id": 51, "category": "第三類：學校與外出安全", "question": "為什麼坐車要繫安全帶？", "answer": "因為要保護身體。"}, {"id": 52, "category": "第三類：學校與外出安全", "question": "為什麼坐機車要戴安全帽？", "answer": "因為要保護頭部。"}, {"id": 53, "category": "第三類：學校與外出安全", "question": "為什麼過馬路要看車？", "answer": "因為要注意安全。"}, {"id": 54, "category": "第三類：學校與外出安全", "question": "為什麼紅燈要停下來？", "answer": "因為現在不能通行。"}, {"id": 55, "category": "第三類：學校與外出安全", "question": "為什麼要走斑馬線？", "answer": "因為過馬路比較安全。"}, {"id": 56, "category": "第三類：學校與外出安全", "question": "為什麼不能衝到馬路上？", "answer": "因為可能被車撞到。"}, {"id": 57, "category": "第三類：學校與外出安全", "question": "為什麼下樓梯要扶扶手？", "answer": "因為可以保持平衡。"}, {"id": 58, "category": "第三類：學校與外出安全", "question": "為什麼不能摸熱鍋子？", "answer": "因為會燙傷。"}, {"id": 59, "category": "第三類：學校與外出安全", "question": "為什麼游泳要有大人陪？", "answer": "因為水裡可能有危險。"}, {"id": 60, "category": "第三類：學校與外出安全", "question": "為什麼迷路要找人幫忙？", "answer": "因為需要找到家人。"}, {"id": 61, "category": "第四類：情緒與人際互動", "question": "為什麼收到禮物會開心？", "answer": "因為得到喜歡的東西。"}, {"id": 62, "category": "第四類：情緒與人際互動", "question": "為什麼玩具壞掉會難過？", "answer": "因為不能玩了。"}, {"id": 63, "category": "第四類：情緒與人際互動", "question": "為什麼找不到媽媽會著急？", "answer": "因為不知道媽媽在哪裡。"}, {"id": 64, "category": "第四類：情緒與人際互動", "question": "為什麼看到可怕的東西會害怕？", "answer": "因為擔心有危險。"}, {"id": 65, "category": "第四類：情緒與人際互動", "question": "為什麼等太久會不耐煩？", "answer": "因為想快點輪到自己。"}, {"id": 66, "category": "第四類：情緒與人際互動", "question": "為什麼被稱讚會開心？", "answer": "因為受到肯定。"}, {"id": 67, "category": "第四類：情緒與人際互動", "question": "為什麼輸了遊戲可能會失望？", "answer": "因為原本想贏。"}, {"id": 68, "category": "第四類：情緒與人際互動", "question": "為什麼肚子餓時容易生氣？", "answer": "因為肚子不舒服。"}, {"id": 69, "category": "第四類：情緒與人際互動", "question": "為什麼生病時不想玩？", "answer": "因為身體不舒服。"}, {"id": 70, "category": "第四類：情緒與人際互動", "question": "為什麼聲音太大會摀耳朵？", "answer": "因為聲音不舒服。"}, {"id": 71, "category": "第四類：情緒與人際互動", "question": "為什麼別人幫忙要說謝謝？", "answer": "因為要表達感謝。"}, {"id": 72, "category": "第四類：情緒與人際互動", "question": "為什麼做錯事要說對不起？", "answer": "因為要表達歉意。"}, {"id": 73, "category": "第四類：情緒與人際互動", "question": "為什麼要輪流玩玩具？", "answer": "因為大家都有機會玩。"}, {"id": 74, "category": "第四類：情緒與人際互動", "question": "為什麼不能搶別人的東西？", "answer": "因為東西是別人的。"}, {"id": 75, "category": "第四類：情緒與人際互動", "question": "為什麼借東西要先問？", "answer": "因為要得到同意。"}, {"id": 76, "category": "第四類：情緒與人際互動", "question": "為什麼不能故意推人？", "answer": "因為別人可能受傷。"}, {"id": 77, "category": "第四類：情緒與人際互動", "question": "為什麼朋友跌倒要關心？", "answer": "因為朋友可能受傷。"}, {"id": 78, "category": "第四類：情緒與人際互動", "question": "為什麼要等別人說完話？", "answer": "因為要聽清楚。"}, {"id": 79, "category": "第四類：情緒與人際互動", "question": "為什麼不舒服要告訴大人？", "answer": "因為可以得到幫忙。"}, {"id": 80, "category": "第四類：情緒與人際互動", "question": "為什麼不想玩可以說不要？", "answer": "因為可以表達自己的想法。"}, {"id": 81, "category": "第五類：生活情境與因果推理", "question": "小明沒帶雨傘，為什麼衣服濕了？", "answer": "因為被雨淋濕。"}, {"id": 82, "category": "第五類：生活情境與因果推理", "question": "小華跑得太快，為什麼跌倒了？", "answer": "因為沒有站穩。"}, {"id": 83, "category": "第五類：生活情境與因果推理", "question": "小美沒吃早餐，為什麼肚子叫？", "answer": "因為肚子餓。"}, {"id": 84, "category": "第五類：生活情境與因果推理", "question": "小明昨晚很晚睡，為什麼早上想睡？", "answer": "因為睡眠不足。"}, {"id": 85, "category": "第五類：生活情境與因果推理", "question": "小華一直跑步，為什麼流汗？", "answer": "因為身體在散熱。"}, {"id": 86, "category": "第五類：生活情境與因果推理", "question": "小美喝了很多水，為什麼想尿尿？", "answer": "因為膀胱裝了尿液。"}, {"id": 87, "category": "第五類：生活情境與因果推理", "question": "小明忘記帶書包，為什麼沒有課本？", "answer": "因為課本在書包裡。"}, {"id": 88, "category": "第五類：生活情境與因果推理", "question": "小華的水壺空了，為什麼去裝水？", "answer": "因為沒有水可以喝。"}, {"id": 89, "category": "第五類：生活情境與因果推理", "question": "小美的鞋帶鬆了，為什麼停下來？", "answer": "因為要綁鞋帶。"}, {"id": 90, "category": "第五類：生活情境與因果推理", "question": "小明的玩具沒電了，為什麼不能動？", "answer": "因為沒有電力。"}, {"id": 91, "category": "第五類：生活情境與因果推理", "question": "小華把水打翻了，為什麼要擦桌子？", "answer": "因為桌子濕了。"}, {"id": 92, "category": "第五類：生活情境與因果推理", "question": "小美的氣球碰到尖刺，為什麼破掉？", "answer": "因為被刺破了。"}, {"id": 93, "category": "第五類：生活情境與因果推理", "question": "小明把冰塊放在太陽下，為什麼變成水？", "answer": "因為冰塊融化了。"}, {"id": 94, "category": "第五類：生活情境與因果推理", "question": "小華把水放進冷凍庫，為什麼結冰？", "answer": "因為溫度很低。"}, {"id": 95, "category": "第五類：生活情境與因果推理", "question": "小美把濕衣服掛起來，為什麼後來乾了？", "answer": "因為水蒸發了。"}, {"id": 96, "category": "第五類：生活情境與因果推理", "question": "小明忘記關水龍頭，為什麼水一直流？", "answer": "因為水龍頭還開著。"}, {"id": 97, "category": "第五類：生活情境與因果推理", "question": "小華沒澆花，為什麼花枯萎了？", "answer": "因為缺少水分。"}, {"id": 98, "category": "第五類：生活情境與因果推理", "question": "小美忘記帶鑰匙，為什麼進不了家門？", "answer": "因為門鎖著。"}, {"id": 99, "category": "第五類：生活情境與因果推理", "question": "小明跑步沒有看前面，為什麼撞到椅子？", "answer": "因為沒注意前面的障礙物。"}, {"id": 100, "category": "第五類：生活情境與因果推理", "question": "小華走進暗暗的房間，為什麼開燈？", "answer": "因為想看清楚。"}];
+
+    const dataWhen = rawWhen.map(item => ({ ...item, unit: 'when', unitName: '生活' }));
+    const dataWhy = rawWhy.map(item => ({ ...item, unit: 'why', unitName: '因果' }));
+    const dataAll = [...dataWhen, ...dataWhy];
 
     const config = {
       when: {
@@ -598,13 +661,26 @@
         autoLabel: "自動連續播放（題間隔2秒）",
         audioDir: "./output/singles_why/",
         fullAlbum: "./output/why_100_compilation.mp3",
-        fullAlbumName: "為什麼因果認知100題完整大合輯",
+        fullAlbumName: "為什麼因果認知100題完整大合輯 (21分鐘)",
         categories: [
           { key: "第一類：身體需求與日常生活", label: "1. 身體日常 (1-20)", album: "./output/categories_why/01_第一類_身體需求與日常生活(1-20題).mp3", albumName: "第一類：身體日常" },
           { key: "第二類：天氣、穿著與環境", label: "2. 天氣環境 (21-40)", album: "./output/categories_why/02_第二類_天氣穿著與環境(21-40題).mp3", albumName: "第二類：天氣環境" },
           { key: "第三類：學校與外出安全", label: "3. 學校安全 (41-60)", album: "./output/categories_why/03_第三類_學校與外出安全(41-60題).mp3", albumName: "第三類：學校安全" },
           { key: "第四類：情緒與人際互動", label: "4. 情緒人際 (61-80)", album: "./output/categories_why/04_第四類_情緒與人際互動(61-80題).mp3", albumName: "第四類：情緒人際" },
           { key: "第五類：生活情境與因果推理", label: "5. 生活因果 (81-100)", album: "./output/categories_why/05_第五類_生活情境與因果推理(81-100題).mp3", albumName: "第五類：生活因果" }
+        ]
+      },
+      all: {
+        title: "特教雙單元綜合（全 200 題大混播）",
+        subtitle: "臺灣國語自然女聲（生活問答 100 題 + 因果認知 100 題 | 跨單元隨機大抽題）",
+        autoDelay: 2500,
+        autoLabel: "自動連續播放（題間隔2.5秒）",
+        fullAlbum: "./output/full_100_compilation.mp3",
+        fullAlbumName: "生活問答完整大合輯",
+        categories: [
+          { key: "all", label: "🎲 全部 200 題混播" },
+          { key: "when", label: "📘 生活問答 (100題)" },
+          { key: "why", label: "📙 因果認知 (100題)" }
         ]
       }
     };
@@ -616,7 +692,7 @@
     let isAlbumMode = false;
     let currentFilter = "all";
 
-    const CACHE_NAME = 'autism-tts-v2.0.0';
+    const CACHE_NAME = 'autism-tts-v2.1.0';
 
     const audio = document.getElementById("audioElement");
     const playBtn = document.getElementById("playBtn");
@@ -661,16 +737,24 @@
       return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
     }
 
-    function getAudioPath(unit, item) {
+    function getAudioPath(item) {
       const cleanQ = item.question.replace("？", "").replace("?", "").replace("/", "_").trim();
       const idStr = String(item.id).padStart(3, "0");
-      const dir = config[unit].audioDir;
+      const dir = item.unit === "why" ? config.why.audioDir : config.when.audioDir;
       return encodeURI(`${dir}第${idStr}題_${cleanQ}.mp3`);
     }
 
     function switchUnit(unitKey) {
       currentUnit = unitKey;
-      questionsData = (unitKey === "when") ? dataWhen : dataWhy;
+      if (unitKey === "when") {
+        questionsData = dataWhen;
+      } else if (unitKey === "why") {
+        questionsData = dataWhy;
+      } else {
+        questionsData = dataAll;
+        shuffleMode.checked = true; // 切換到全 200 題綜合時預設開啟隨機播放！
+      }
+
       currentIndex = 0;
       isAlbumMode = false;
       currentFilter = "all";
@@ -684,24 +768,40 @@
       // 更新按鈕外觀
       const btnWhen = document.getElementById("btnSwitchWhen");
       const btnWhy = document.getElementById("btnSwitchWhy");
+      const btnAll = document.getElementById("btnSwitchAll");
+
+      btnWhen.classList.remove("active");
+      btnWhy.classList.remove("active");
+      btnAll.classList.remove("active");
+
+      playerDock.classList.remove("dock-why", "dock-all");
+      albumContainer.classList.remove("shortcuts-why", "shortcuts-all");
+      tabsContainer.classList.remove("tabs-why", "tabs-all");
+      qList.classList.remove("list-why", "list-all");
+
       if (unitKey === "when") {
         btnWhen.classList.add("active");
-        btnWhy.classList.remove("active");
-        playerDock.classList.remove("dock-why");
-        albumContainer.classList.remove("shortcuts-why");
-        tabsContainer.classList.remove("tabs-why");
-        qList.classList.remove("list-why");
         btnDownloadCurrent.style.background = "#2563eb";
         btnDownloadCurrent.style.borderColor = "#2563eb";
-      } else {
+        btnDownloadCurrent.innerText = "📥 下載生活問答 (15MB)";
+      } else if (unitKey === "why") {
         btnWhy.classList.add("active");
-        btnWhen.classList.remove("active");
         playerDock.classList.add("dock-why");
         albumContainer.classList.add("shortcuts-why");
         tabsContainer.classList.add("tabs-why");
         qList.classList.add("list-why");
         btnDownloadCurrent.style.background = "#d97706";
         btnDownloadCurrent.style.borderColor = "#d97706";
+        btnDownloadCurrent.innerText = "📥 下載因果認知 (15MB)";
+      } else {
+        btnAll.classList.add("active");
+        playerDock.classList.add("dock-all");
+        albumContainer.classList.add("shortcuts-all");
+        tabsContainer.classList.add("tabs-all");
+        qList.classList.add("list-all");
+        btnDownloadCurrent.style.background = "#7c3aed";
+        btnDownloadCurrent.style.borderColor = "#7c3aed";
+        btnDownloadCurrent.innerText = "📥 下載全200題 (30MB)";
       }
 
       // 更新文案
@@ -718,28 +818,49 @@
       const unitCfg = config[currentUnit];
       
       // 合輯快捷鍵
-      albumContainer.innerHTML = `
-        <span class="album-title">🚌 復康巴士一鍵合輯：</span>
-        <button class="btn btn-outline btn-sm" id="btnAlbumFull">▶ 100題完整大合輯</button>
-      `;
-      unitCfg.categories.forEach((cat, idx) => {
-        const b = document.createElement("button");
-        b.className = "btn btn-outline btn-sm";
-        b.innerText = `${idx + 1}. ${cat.albumName.split("：")[1] || cat.albumName}`;
-        b.onclick = () => playAlbum(cat.album, cat.albumName);
-        albumContainer.appendChild(b);
-      });
-      document.getElementById("btnAlbumFull").onclick = () => playAlbum(unitCfg.fullAlbum, unitCfg.fullAlbumName);
+      if (currentUnit === "all") {
+        albumContainer.innerHTML = `
+          <span class="album-title">🚌 復康巴士一鍵合輯：</span>
+          <button class="btn btn-outline btn-sm" id="btnAlbumFullWhen">▶ 生活問答大合輯 (19分)</button>
+          <button class="btn btn-outline btn-sm" id="btnAlbumFullWhy">▶ 因果認知大合輯 (21分)</button>
+        `;
+        document.getElementById("btnAlbumFullWhen").onclick = () => playAlbum(config.when.fullAlbum, config.when.fullAlbumName);
+        document.getElementById("btnAlbumFullWhy").onclick = () => playAlbum(config.why.fullAlbum, config.why.fullAlbumName);
+      } else {
+        albumContainer.innerHTML = `
+          <span class="album-title">🚌 復康巴士一鍵合輯：</span>
+          <button class="btn btn-outline btn-sm" id="btnAlbumFull">▶ 100題完整大合輯</button>
+        `;
+        unitCfg.categories.forEach((cat, idx) => {
+          const b = document.createElement("button");
+          b.className = "btn btn-outline btn-sm";
+          b.innerText = `${idx + 1}. ${cat.albumName.split("：")[1] || cat.albumName}`;
+          b.onclick = () => playAlbum(cat.album, cat.albumName);
+          albumContainer.appendChild(b);
+        });
+        document.getElementById("btnAlbumFull").onclick = () => playAlbum(unitCfg.fullAlbum, unitCfg.fullAlbumName);
+      }
 
       // 分類標籤
-      tabsContainer.innerHTML = `<button class="tab-btn active" data-cat="all">全部 100 題</button>`;
-      unitCfg.categories.forEach(cat => {
-        const tb = document.createElement("button");
-        tb.className = "tab-btn";
-        tb.setAttribute("data-cat", cat.key);
-        tb.innerText = cat.label;
-        tabsContainer.appendChild(tb);
-      });
+      tabsContainer.innerHTML = "";
+      if (currentUnit === "all") {
+        unitCfg.categories.forEach((cat, idx) => {
+          const tb = document.createElement("button");
+          tb.className = `tab-btn ${idx === 0 ? "active" : ""}`;
+          tb.setAttribute("data-cat", cat.key);
+          tb.innerText = cat.label;
+          tabsContainer.appendChild(tb);
+        });
+      } else {
+        tabsContainer.innerHTML = `<button class="tab-btn active" data-cat="all">全部 100 題</button>`;
+        unitCfg.categories.forEach(cat => {
+          const tb = document.createElement("button");
+          tb.className = "tab-btn";
+          tb.setAttribute("data-cat", cat.key);
+          tb.innerText = cat.label;
+          tabsContainer.appendChild(tb);
+        });
+      }
     }
 
     function renderList() {
@@ -747,8 +868,11 @@
       const isHidden = hideAnswer.checked;
 
       questionsData.forEach((item, index) => {
-        if (currentFilter !== "all" && item.category !== currentFilter) {
-          return;
+        if (currentUnit === "all") {
+          if (currentFilter === "when" && item.unit !== "when") return;
+          if (currentFilter === "why" && item.unit !== "why") return;
+        } else {
+          if (currentFilter !== "all" && item.category !== currentFilter) return;
         }
 
         const card = document.createElement("div");
@@ -756,10 +880,12 @@
         card.id = `card-${index}`;
         card.onclick = () => playQuestion(index);
 
+        const badgeText = currentUnit === "all" ? `【${item.unitName}】第 ${item.id} 題` : `第 ${item.id} 題`;
+
         card.innerHTML = `
           <div>
             <div class="q-header">
-              <span class="badge ${!isAlbumMode && index === currentIndex && isPlaying ? "badge-playing" : ""}">第 ${item.id} 題</span>
+              <span class="badge ${!isAlbumMode && index === currentIndex && isPlaying ? "badge-playing" : ""}">${badgeText}</span>
               <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">${item.category.split("：")[1] || item.category}</span>
             </div>
             <div class="q-title">${escapeHtml(item.question)}</div>
@@ -775,7 +901,7 @@
       isAlbumMode = false;
       currentIndex = index;
       const item = questionsData[index];
-      const audioSrc = getAudioPath(currentUnit, item);
+      const audioSrc = getAudioPath(item);
 
       audio.src = audioSrc;
       audio.load();
@@ -810,7 +936,8 @@
       if (!isAlbumMode) {
         const item = questionsData[currentIndex];
         if (item) {
-          playingTitle.innerText = `第 ${item.id} 題：${escapeHtml(item.question)}`;
+          const tag = currentUnit === "all" ? `【${item.unitName}】` : "";
+          playingTitle.innerText = `${tag}第 ${item.id} 題：${escapeHtml(item.question)}`;
         }
       }
       playBtn.innerText = isPlaying ? "⏸ 暫停" : "▶ 播放";
@@ -844,8 +971,14 @@
     function getFilteredIndices() {
       const indices = [];
       questionsData.forEach((item, index) => {
-        if (currentFilter === "all" || item.category === currentFilter) {
+        if (currentUnit === "all") {
+          if (currentFilter === "when" && item.unit !== "when") return;
+          if (currentFilter === "why" && item.unit !== "why") return;
           indices.push(index);
+        } else {
+          if (currentFilter === "all" || item.category === currentFilter) {
+            indices.push(index);
+          }
         }
       });
       return indices;
@@ -922,7 +1055,10 @@
       }
 
       if (autoPlayNext.checked) {
-        const delaySec = config[currentUnit].autoDelay / 1000;
+        const delay = (currentUnit === "all" && questionsData[currentIndex]) 
+          ? (questionsData[currentIndex].unit === "why" ? 2000 : 3000) 
+          : config[currentUnit].autoDelay;
+        const delaySec = delay / 1000;
         playingTitle.innerText = `準備下一題...（間隔 ${delaySec} 秒）`;
         setTimeout(() => {
           if (shuffleMode.checked) {
@@ -939,7 +1075,7 @@
               updateUI();
             }
           }
-        }, config[currentUnit].autoDelay);
+        }, delay);
       } else {
         isPlaying = false;
         updateUI();
@@ -1018,15 +1154,15 @@
 
     // 下載當前單元
     btnDownloadCurrent.onclick = () => {
-      const list = questionsData.map(item => getAudioPath(currentUnit, item));
-      downloadAudioBatch(list, `正在下載【${currentUnit === 'when' ? '生活問答' : '因果認知'}】`);
+      const list = questionsData.map(item => getAudioPath(item));
+      const title = currentUnit === 'when' ? '生活問答' : (currentUnit === 'why' ? '因果認知' : '全部雙單元');
+      downloadAudioBatch(list, `正在下載【${title}】`);
     };
 
     // 下載雙單元全部 200 題
     btnDownloadAll.onclick = () => {
-      const list1 = dataWhen.map(item => getAudioPath('when', item));
-      const list2 = dataWhy.map(item => getAudioPath('why', item));
-      downloadAudioBatch([...list1, ...list2], '正在下載雙單元 200 題');
+      const list = dataAll.map(item => getAudioPath(item));
+      downloadAudioBatch(list, '正在下載雙單元全套 200 題');
     };
 
     // 清理快取
@@ -1065,7 +1201,7 @@
       }
     }
 
-    // 初始化
+    // 初始化預設為生活問答單元
     switchUnit("when");
   </script>
 </body>

@@ -1,10 +1,11 @@
-const CACHE_NAME = 'autism-tts-v1.1.1';
+const CACHE_NAME = 'autism-tts-v2.0.0';
 
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './data/questions.json'
+  './data/questions.json',
+  './data/questions_why.json'
 ];
 
 // 安裝 Service Worker 並快取核心架構

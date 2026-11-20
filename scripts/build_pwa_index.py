@@ -1,9 +1,13 @@
 import json
 
 with open("data/questions.json", "r", encoding="utf-8") as f:
-    questions = json.load(f)
+    questions_when = json.load(f)
 
-json_str = json.dumps(questions, ensure_ascii=False)
+with open("data/questions_why.json", "r", encoding="utf-8") as f:
+    questions_why = json.load(f)
+
+json_when_str = json.dumps(questions_when, ensure_ascii=False)
+json_why_str = json.dumps(questions_why, ensure_ascii=False)
 
 html_code = f"""<!DOCTYPE html>
 <html lang="zh-TW">
@@ -13,13 +17,13 @@ html_code = f"""<!DOCTYPE html>
   <meta name="theme-color" content="#2563eb">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="生活問答">
+  <meta name="apple-mobile-web-app-title" content="特教問答">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="apple-touch-icon" href="icon.svg">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob:; img-src 'self' data:; connect-src 'self' data: blob:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src 'self' data: blob:; img-src 'self' data:; connect-src 'self' data: blob:;">
   <meta name="referrer" content="no-referrer">
-  <title>生活問答特教教材（100題）</title>
+  <title>特教生活與因果認知問答（200題雙單元）</title>
   <style>
     :root {{
       --primary: #2563eb;
@@ -31,6 +35,8 @@ html_code = f"""<!DOCTYPE html>
       --border: #cbd5e1;
       --active-card: #eff6ff;
       --success: #10b981;
+      --unit-why: #d97706;
+      --unit-why-hover: #b45309;
     }}
 
     * {{
@@ -63,6 +69,54 @@ html_code = f"""<!DOCTYPE html>
     .subtitle {{
       font-size: 0.88rem;
       color: var(--text-muted);
+      line-height: 1.4;
+    }}
+
+    /* 單元大切換 Switcher */
+    .unit-switch-container {{
+      max-width: 900px;
+      margin: 0 auto 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #e2e8f0;
+      padding: 5px;
+      border-radius: 14px;
+    }}
+
+    .unit-btn {{
+      border: none;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: #475569;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+    }}
+
+    .unit-btn .unit-desc {{
+      font-size: 0.76rem;
+      font-weight: normal;
+      opacity: 0.85;
+    }}
+
+    .unit-btn.active.unit-when {{
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }}
+
+    .unit-btn.active.unit-why {{
+      background: #d97706;
+      color: white;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
     }}
 
     /* 離線快取狀態欄 */
@@ -91,12 +145,13 @@ html_code = f"""<!DOCTYPE html>
 
     .cache-actions {{
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
     }}
 
     .btn-xs {{
-      padding: 4px 10px;
+      padding: 5px 10px;
       font-size: 0.8rem;
       border-radius: 6px;
       border: 1px solid var(--border);
@@ -139,6 +194,12 @@ html_code = f"""<!DOCTYPE html>
       border-radius: 16px;
       padding: 16px;
       box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+      transition: border-color 0.2s ease;
+    }}
+
+    .player-dock.dock-why {{
+      border-color: #fcd34d;
+      box-shadow: 0 8px 24px rgba(217, 119, 6, 0.12);
     }}
 
     .now-playing {{
@@ -149,6 +210,10 @@ html_code = f"""<!DOCTYPE html>
       font-weight: 700;
       color: #1e40af;
       font-size: 1.15rem;
+    }}
+
+    .dock-why .now-playing {{
+      color: #b45309;
     }}
 
     .controls-row {{
@@ -183,6 +248,14 @@ html_code = f"""<!DOCTYPE html>
       background: var(--primary-hover);
     }}
 
+    .dock-why .btn-primary {{
+      background: var(--unit-why);
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+    }}
+    .dock-why .btn-primary:hover {{
+      background: var(--unit-why-hover);
+    }}
+
     .btn-outline {{
       background: white;
       border: 1.5px solid var(--border);
@@ -207,6 +280,10 @@ html_code = f"""<!DOCTYPE html>
       width: 0%;
       background: var(--primary);
       transition: width 0.1s linear;
+    }}
+
+    .dock-why .progress-bar-fill {{
+      background: var(--unit-why);
     }}
 
     .toggle-group {{
@@ -241,11 +318,20 @@ html_code = f"""<!DOCTYPE html>
       gap: 8px;
     }}
 
+    .album-shortcuts.shortcuts-why {{
+      background: #fffbeb;
+      border-color: #f59e0b;
+    }}
+
     .album-title {{
       font-size: 0.88rem;
       font-weight: 700;
       color: #1e40af;
       margin-right: 4px;
+    }}
+
+    .shortcuts-why .album-title {{
+      color: #b45309;
     }}
 
     .btn-sm {{
@@ -278,6 +364,11 @@ html_code = f"""<!DOCTYPE html>
       background: #2563eb;
       color: white;
       border-color: #2563eb;
+    }}
+
+    .tabs-why .tab-btn.active {{
+      background: #d97706;
+      border-color: #d97706;
     }}
 
     /* 題目網格列表 */
@@ -314,6 +405,12 @@ html_code = f"""<!DOCTYPE html>
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
     }}
 
+    .list-why .q-card.playing {{
+      background: #fffbeb;
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.3);
+    }}
+
     .q-header {{
       display: flex;
       justify-content: space-between;
@@ -332,6 +429,11 @@ html_code = f"""<!DOCTYPE html>
 
     .badge-playing {{
       background: #2563eb;
+      color: white;
+    }}
+
+    .list-why .badge-playing {{
+      background: #d97706;
       color: white;
     }}
 
@@ -370,18 +472,31 @@ html_code = f"""<!DOCTYPE html>
 <body>
 
   <header>
-    <h1>生活問答特教教材（100題）</h1>
-    <p class="subtitle">臺灣國語自然女聲（語速 90% | 問後停頓 3 秒 | 題間間隔 3 秒）</p>
+    <h1 id="mainTitle">特教生活與因果認知教材（200題）</h1>
+    <p class="subtitle" id="mainSubtitle">臺灣國語自然女聲（語速 90% | 問後停頓 3 秒 | 題間間隔 3 秒）</p>
   </header>
+
+  <!-- 單元大切換 Switcher -->
+  <div class="unit-switch-container">
+    <button class="unit-btn active unit-when" id="btnSwitchWhen" onclick="switchUnit('when')">
+      <span>📘 單元一：生活問答（什麼時候？）</span>
+      <span class="unit-desc">100題 | 問後停頓 3秒 | 適合日常情境</span>
+    </button>
+    <button class="unit-btn unit-why" id="btnSwitchWhy" onclick="switchUnit('why')">
+      <span>📙 單元二：因果認知（為什麼？）</span>
+      <span class="unit-desc">100題 | 問後停頓 5秒 | 適合思考推理</span>
+    </button>
+  </div>
 
   <!-- 離線快取管理欄 -->
   <div class="cache-banner">
     <div class="cache-status" id="cacheStatusText">
       <span>💾 離線模式：</span>
-      <span id="cacheLabel" style="color: #2563eb;">點擊右側按鈕可預載全套教材，沒網路也能播放</span>
+      <span id="cacheLabel" style="color: #2563eb;">點擊右側按鈕可預載音檔，沒網路也能播放</span>
     </div>
     <div class="cache-actions">
-      <button class="btn-xs" id="btnDownloadAll" style="background: #2563eb; color: white; border-color: #2563eb;">📥 下載全套離線教材 (15MB)</button>
+      <button class="btn-xs" id="btnDownloadCurrent" style="background: #2563eb; color: white; border-color: #2563eb;">📥 下載本單元 (15MB)</button>
+      <button class="btn-xs" id="btnDownloadAll" style="background: #475569; color: white; border-color: #475569;">📥 下載雙單元全套 (30MB)</button>
       <button class="btn-xs" id="btnClearCache">🔄 清理快取</button>
     </div>
     <div class="cache-progress-bar" id="cacheProgressBar">
@@ -390,7 +505,7 @@ html_code = f"""<!DOCTYPE html>
   </div>
 
   <!-- 頂部播放器 Dock -->
-  <div class="player-dock">
+  <div class="player-dock" id="playerDock">
     <div class="now-playing">
       <span id="playingTitle">點選下方任一題目即可發音</span>
       <span id="playingTime" style="font-size: 0.88rem; font-weight: normal; color: var(--text-muted);">00:00 / 00:00</span>
@@ -410,7 +525,7 @@ html_code = f"""<!DOCTYPE html>
 
     <div class="toggle-group">
       <label class="toggle-label">
-        <input type="checkbox" id="autoPlayNext" checked> 自動連續播放（題間隔3秒）
+        <input type="checkbox" id="autoPlayNext" checked> <span id="autoPlayLabel">自動連續播放（題間隔3秒）</span>
       </label>
       <label class="toggle-label">
         <input type="checkbox" id="shuffleMode"> 隨機播放模式
@@ -425,26 +540,13 @@ html_code = f"""<!DOCTYPE html>
   </div>
 
   <!-- 合輯快捷播放 -->
-  <div class="album-shortcuts">
-    <span class="album-title">🚌 復康巴士一鍵合輯：</span>
-    <button class="btn btn-outline btn-sm" id="btnAlbumFull">▶ 100題完整大合輯</button>
-    <button class="btn btn-outline btn-sm" id="btnAlbum1">1. 生理需求</button>
-    <button class="btn btn-outline btn-sm" id="btnAlbum2">2. 生活作息</button>
-    <button class="btn btn-outline btn-sm" id="btnAlbum3">3. 穿著天氣</button>
-    <button class="btn btn-outline btn-sm" id="btnAlbum4">4. 學校學習</button>
-    <button class="btn btn-outline btn-sm" id="btnAlbum5">5. 外出安全</button>
-    <button class="btn btn-outline btn-sm" id="btnAlbum6">6. 季節事件</button>
+  <div class="album-shortcuts" id="albumContainer">
+    <!-- 動態注入合輯按鈕 -->
   </div>
 
   <!-- 分類篩選 Tab -->
   <div class="category-tabs" id="tabs">
-    <button class="tab-btn active" data-cat="all">全部 100 題</button>
-    <button class="tab-btn" data-cat="第一類：身體需求與生理反應">1. 生理需求 (1-20)</button>
-    <button class="tab-btn" data-cat="第二類：生活作息">2. 生活作息 (21-40)</button>
-    <button class="tab-btn" data-cat="第三類：穿著與天氣">3. 穿著天氣 (41-55)</button>
-    <button class="tab-btn" data-cat="第四類：學校與學習">4. 學校學習 (56-70)</button>
-    <button class="tab-btn" data-cat="第五類：外出與安全">5. 外出安全 (71-85)</button>
-    <button class="tab-btn" data-cat="第六類：季節、節日與事件">6. 季節事件 (86-100)</button>
+    <!-- 動態注入分類標籤 -->
   </div>
 
   <!-- 題目列表 -->
@@ -457,7 +559,6 @@ html_code = f"""<!DOCTYPE html>
     if ('serviceWorker' in navigator) {{
       navigator.serviceWorker.register('./sw.js').then(reg => {{
         console.log('Service Worker 註冊成功:', reg.scope);
-        // 每次打開主動檢查是否有新版本
         reg.update();
         
         reg.onupdatefound = () => {{
@@ -471,7 +572,6 @@ html_code = f"""<!DOCTYPE html>
         }};
       }}).catch(err => console.log('Service Worker 註冊略過:', err));
 
-      // 當新的 Service Worker 生效時自動重新載入頁面
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {{
         if (!refreshing) {{
@@ -481,12 +581,53 @@ html_code = f"""<!DOCTYPE html>
       }});
     }}
 
-    const questionsData = {json_str};
+    const dataWhen = {json_when_str};
+    const dataWhy = {json_why_str};
 
+    const config = {{
+      when: {{
+        title: "生活問答特教教材（100題）",
+        subtitle: "臺灣國語自然女聲（語速 90% | 問後停頓 3 秒 | 題間間隔 3 秒）",
+        autoDelay: 3000,
+        autoLabel: "自動連續播放（題間隔3秒）",
+        audioDir: "./output/singles/",
+        fullAlbum: "./output/full_100_compilation.mp3",
+        fullAlbumName: "生活問答100題完整大合輯 (19分鐘)",
+        categories: [
+          {{ key: "第一類：身體需求與生理反應", label: "1. 生理需求 (1-20)", album: "./output/categories/01_第一類_身體需求與生理反應(1-20題).mp3", albumName: "第一類：身體需求" }},
+          {{ key: "第二類：生活作息", label: "2. 生活作息 (21-40)", album: "./output/categories/02_第二類_生活作息(21-40題).mp3", albumName: "第二類：生活作息" }},
+          {{ key: "第三類：穿著與天氣", label: "3. 穿著天氣 (41-55)", album: "./output/categories/03_第三類_穿著與天氣(41-55題).mp3", albumName: "第三類：穿著天氣" }},
+          {{ key: "第四類：學校與學習", label: "4. 學校學習 (56-70)", album: "./output/categories/04_第四類_學校與學習(56-70題).mp3", albumName: "第四類：學校學習" }},
+          {{ key: "第五類：外出與安全", label: "5. 外出安全 (71-85)", album: "./output/categories/05_第五類_外出與安全(71-85題).mp3", albumName: "第五類：外出安全" }},
+          {{ key: "第六類：季節、節日與事件", label: "6. 季節事件 (86-100)", album: "./output/categories/06_第六類_季節節日與事件(86-100題).mp3", albumName: "第六類：季節事件" }}
+        ]
+      }},
+      why: {{
+        title: "因果認知特教教材（100題）",
+        subtitle: "臺灣國語自然女聲（語速 90% | 問後停頓 5 秒 | 題間間隔 2 秒）",
+        autoDelay: 2000,
+        autoLabel: "自動連續播放（題間隔2秒）",
+        audioDir: "./output/singles_why/",
+        fullAlbum: "./output/why_100_compilation.mp3",
+        fullAlbumName: "為什麼因果認知100題完整大合輯",
+        categories: [
+          {{ key: "第一類：身體需求與日常生活", label: "1. 身體日常 (1-20)", album: "./output/categories_why/01_第一類_身體需求與日常生活(1-20題).mp3", albumName: "第一類：身體日常" }},
+          {{ key: "第二類：天氣、穿著與環境", label: "2. 天氣環境 (21-40)", album: "./output/categories_why/02_第二類_天氣穿著與環境(21-40題).mp3", albumName: "第二類：天氣環境" }},
+          {{ key: "第三類：學校與外出安全", label: "3. 學校安全 (41-60)", album: "./output/categories_why/03_第三類_學校與外出安全(41-60題).mp3", albumName: "第三類：學校安全" }},
+          {{ key: "第四類：情緒與人際互動", label: "4. 情緒人際 (61-80)", album: "./output/categories_why/04_第四類_情緒與人際互動(61-80題).mp3", albumName: "第四類：情緒人際" }},
+          {{ key: "第五類：生活情境與因果推理", label: "5. 生活因果 (81-100)", album: "./output/categories_why/05_第五類_生活情境與因果推理(81-100題).mp3", albumName: "第五類：生活因果" }}
+        ]
+      }}
+    }};
+
+    let currentUnit = "when";
+    let questionsData = dataWhen;
     let currentIndex = 0;
     let isPlaying = false;
     let isAlbumMode = false;
     let currentFilter = "all";
+
+    const CACHE_NAME = 'autism-tts-v2.0.0';
 
     const audio = document.getElementById("audioElement");
     const playBtn = document.getElementById("playBtn");
@@ -497,26 +638,31 @@ html_code = f"""<!DOCTYPE html>
     const progressFill = document.getElementById("progressFill");
     const progressContainer = document.getElementById("progressContainer");
     const autoPlayNext = document.getElementById("autoPlayNext");
+    const autoPlayLabel = document.getElementById("autoPlayLabel");
     const shuffleMode = document.getElementById("shuffleMode");
     const loopSingle = document.getElementById("loopSingle");
     const hideAnswer = document.getElementById("hideAnswer");
     const randomBtn = document.getElementById("randomBtn");
     const qList = document.getElementById("qList");
+    const albumContainer = document.getElementById("albumContainer");
+    const tabsContainer = document.getElementById("tabs");
+    const playerDock = document.getElementById("playerDock");
 
     const cacheLabel = document.getElementById("cacheLabel");
+    const btnDownloadCurrent = document.getElementById("btnDownloadCurrent");
     const btnDownloadAll = document.getElementById("btnDownloadAll");
     const btnClearCache = document.getElementById("btnClearCache");
     const cacheProgressBar = document.getElementById("cacheProgressBar");
     const cacheProgressFill = document.getElementById("cacheProgressFill");
 
-        function escapeHtml(str) {{
+    function escapeHtml(str) {{
       if (!str) return "";
       return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/\x27/g, "&#039;");
+        .replace(/\\x27/g, "&#039;");
     }}
 
     function formatTime(seconds) {{
@@ -526,10 +672,85 @@ html_code = f"""<!DOCTYPE html>
       return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
     }}
 
-    function getAudioPath(item) {{
-      const cleanQ = item.question.replace("？", "").replace("?", "").trim();
+    function getAudioPath(unit, item) {{
+      const cleanQ = item.question.replace("？", "").replace("?", "").replace("/", "_").trim();
       const idStr = String(item.id).padStart(3, "0");
-      return encodeURI(`./output/singles/第${{idStr}}題_${{cleanQ}}.mp3`);
+      const dir = config[unit].audioDir;
+      return encodeURI(`${{dir}}第${{idStr}}題_${{cleanQ}}.mp3`);
+    }}
+
+    function switchUnit(unitKey) {{
+      currentUnit = unitKey;
+      questionsData = (unitKey === "when") ? dataWhen : dataWhy;
+      currentIndex = 0;
+      isAlbumMode = false;
+      currentFilter = "all";
+      audio.pause();
+      isPlaying = false;
+      playBtn.innerText = "▶ 播放";
+      progressFill.style.width = "0%";
+      playingTime.innerText = "00:00 / 00:00";
+      playingTitle.innerText = "點選下方任一題目即可發音";
+
+      // 更新按鈕外觀
+      const btnWhen = document.getElementById("btnSwitchWhen");
+      const btnWhy = document.getElementById("btnSwitchWhy");
+      if (unitKey === "when") {{
+        btnWhen.classList.add("active");
+        btnWhy.classList.remove("active");
+        playerDock.classList.remove("dock-why");
+        albumContainer.classList.remove("shortcuts-why");
+        tabsContainer.classList.remove("tabs-why");
+        qList.classList.remove("list-why");
+        btnDownloadCurrent.style.background = "#2563eb";
+        btnDownloadCurrent.style.borderColor = "#2563eb";
+      }} else {{
+        btnWhy.classList.add("active");
+        btnWhen.classList.remove("active");
+        playerDock.classList.add("dock-why");
+        albumContainer.classList.add("shortcuts-why");
+        tabsContainer.classList.add("tabs-why");
+        qList.classList.add("list-why");
+        btnDownloadCurrent.style.background = "#d97706";
+        btnDownloadCurrent.style.borderColor = "#d97706";
+      }}
+
+      // 更新文案
+      document.getElementById("mainTitle").innerText = config[unitKey].title;
+      document.getElementById("mainSubtitle").innerText = config[unitKey].subtitle;
+      autoPlayLabel.innerText = config[unitKey].autoLabel;
+
+      renderShortcutsAndTabs();
+      renderList();
+      checkExistingCache();
+    }}
+
+    function renderShortcutsAndTabs() {{
+      const unitCfg = config[currentUnit];
+      
+      // 合輯快捷鍵
+      albumContainer.innerHTML = `
+        <span class="album-title">🚌 復康巴士一鍵合輯：</span>
+        <button class="btn btn-outline btn-sm" id="btnAlbumFull">▶ 100題完整大合輯</button>
+      `;
+      unitCfg.categories.forEach((cat, idx) => {{
+        const b = document.createElement("button");
+        b.className = "btn btn-outline btn-sm";
+        b.innerText = `${{idx + 1}}. ${{cat.albumName.split("：")[1] || cat.albumName}}`;
+        b.onclick = () => playAlbum(cat.album, cat.albumName);
+        albumContainer.appendChild(b);
+      }});
+      document.getElementById("btnAlbumFull").onclick = () => playAlbum(unitCfg.fullAlbum, unitCfg.fullAlbumName);
+
+      // 分類標籤
+      tabsContainer.innerHTML = `<button class="tab-btn active" data-cat="all">全部 100 題</button>`;
+      unitCfg.categories.forEach(cat => {{
+        const tb = document.createElement("button");
+        tb.className = "tab-btn";
+        tb.setAttribute("data-cat", cat.key);
+        tb.innerText = cat.label;
+        tabsContainer.appendChild(tb);
+      }});
     }}
 
     function renderList() {{
@@ -565,7 +786,7 @@ html_code = f"""<!DOCTYPE html>
       isAlbumMode = false;
       currentIndex = index;
       const item = questionsData[index];
-      const audioSrc = getAudioPath(item);
+      const audioSrc = getAudioPath(currentUnit, item);
 
       audio.src = audioSrc;
       audio.load();
@@ -595,15 +816,6 @@ html_code = f"""<!DOCTYPE html>
       }}
       document.querySelectorAll(".q-card").forEach(c => c.classList.remove("playing"));
     }}
-
-    // 綁定合輯按鈕事件
-    document.getElementById("btnAlbumFull").onclick = () => playAlbum("./output/full_100_compilation.mp3", "100題完整大合輯 (19分鐘)");
-    document.getElementById("btnAlbum1").onclick = () => playAlbum("./output/categories/01_第一類_身體需求與生理反應(1-20題).mp3", "第一類：身體需求 (1-20題)");
-    document.getElementById("btnAlbum2").onclick = () => playAlbum("./output/categories/02_第二類_生活作息(21-40題).mp3", "第二類：生活作息 (21-40題)");
-    document.getElementById("btnAlbum3").onclick = () => playAlbum("./output/categories/03_第三類_穿著與天氣(41-55題).mp3", "第三類：穿著天氣 (41-55題)");
-    document.getElementById("btnAlbum4").onclick = () => playAlbum("./output/categories/04_第四類_學校與學習(56-70題).mp3", "第四類：學校學習 (56-70題)");
-    document.getElementById("btnAlbum5").onclick = () => playAlbum("./output/categories/05_第五類_外出與安全(71-85題).mp3", "第五類：外出安全 (71-85題)");
-    document.getElementById("btnAlbum6").onclick = () => playAlbum("./output/categories/06_第六類_季節節日與事件(86-100題).mp3", "第六類：季節事件 (86-100題)");
 
     function updateUI() {{
       if (!isAlbumMode) {{
@@ -654,7 +866,6 @@ html_code = f"""<!DOCTYPE html>
       const list = getFilteredIndices();
       if (list.length === 0) return 0;
       if (list.length === 1) return list[0];
-      // 避免連續抽到同一題
       let nextIdx = list[Math.floor(Math.random() * list.length)];
       while (nextIdx === currentIndex && list.length > 1) {{
         nextIdx = list[Math.floor(Math.random() * list.length)];
@@ -722,7 +933,8 @@ html_code = f"""<!DOCTYPE html>
       }}
 
       if (autoPlayNext.checked) {{
-        playingTitle.innerText = `準備下一題...（間隔 3 秒）`;
+        const delaySec = config[currentUnit].autoDelay / 1000;
+        playingTitle.innerText = `準備下一題...（間隔 ${{delaySec}} 秒）`;
         setTimeout(() => {{
           if (shuffleMode.checked) {{
             playQuestion(getNextRandomIndex());
@@ -738,7 +950,7 @@ html_code = f"""<!DOCTYPE html>
               updateUI();
             }}
           }}
-        }}, 3000);
+        }}, config[currentUnit].autoDelay);
       }} else {{
         isPlaying = false;
         updateUI();
@@ -748,7 +960,7 @@ html_code = f"""<!DOCTYPE html>
     hideAnswer.onchange = () => renderList();
 
     // Tab 切換
-    document.getElementById("tabs").onclick = (e) => {{
+    tabsContainer.onclick = (e) => {{
       if (e.target.classList.contains("tab-btn")) {{
         document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
         e.target.classList.add("active");
@@ -757,32 +969,32 @@ html_code = f"""<!DOCTYPE html>
       }}
     }};
 
-    // 一鍵下載全套 100 題離線快取
-    btnDownloadAll.onclick = async () => {{
+    // 下載特定音檔清單輔助函數
+    async function downloadAudioBatch(audioList, labelPrefix) {{
       if (!('caches' in window)) {{
         alert('您的瀏覽器不支援離線快取功能');
         return;
       }}
       if (!navigator.onLine) {{
-        alert(`⚠️ 目前處於離線狀態（例如開啟了飛航模式）！\n\n請先連上 Wi-Fi 或行動網路，才能下載音檔到手機內喔！\n下載完成後，就可以關閉網路離線使用了。`);
+        alert(`⚠️ 目前處於離線狀態（例如開啟了飛航模式）！\\n\\n請先連上 Wi-Fi 或行動網路，才能下載音檔到手機內喔！\\n下載完成後，就可以關閉網路離線使用了。`);
         cacheLabel.innerText = '⚠️ 請先連線網路，才能將音檔下載到手機中';
         cacheLabel.style.color = '#dc2626';
         return;
       }}
 
+      btnDownloadCurrent.disabled = true;
       btnDownloadAll.disabled = true;
       cacheProgressBar.style.display = 'block';
-      cacheLabel.innerText = '連線下載中，請勿關閉網頁...';
+      cacheLabel.innerText = `${{labelPrefix}} 下載中，請勿關閉網頁...`;
       cacheLabel.style.color = '#2563eb';
 
-      const cache = await caches.open('autism-tts-v1.1.1');
+      const cache = await caches.open(CACHE_NAME);
       let successCount = 0;
       let failCount = 0;
-      const total = questionsData.length;
+      const total = audioList.length;
 
       for (let i = 0; i < total; i++) {{
-        const item = questionsData[i];
-        const url = getAudioPath(item);
+        const url = audioList[i];
         try {{
           const response = await fetch(url);
           if (response.ok) {{
@@ -799,21 +1011,33 @@ html_code = f"""<!DOCTYPE html>
         const done = i + 1;
         const pct = Math.round((done / total) * 100);
         cacheProgressFill.style.width = pct + '%';
-        cacheLabel.innerText = `正在下載音檔: ${{done}}/${{total}} (${{pct}}%)`;
+        cacheLabel.innerText = `${{labelPrefix}} (${{done}}/${{total}} - ${{pct}}%)`;
       }}
 
+      btnDownloadCurrent.disabled = false;
+      btnDownloadAll.disabled = false;
+
       if (failCount === 0 && successCount === total) {{
-        cacheLabel.innerText = '✅ 100 題教材已全數離線儲存！即使無網路也能隨時播放。';
+        cacheLabel.innerText = `✅ 教材已全數離線儲存！即使無網路也能隨時播放。`;
         cacheLabel.style.color = '#059669';
-        btnDownloadAll.innerText = '✅ 已完成離線下載';
-        btnDownloadAll.style.background = '#10b981';
-        btnDownloadAll.style.borderColor = '#10b981';
       }} else {{
         cacheLabel.innerText = `⚠️ 下載未完全（成功 ${{successCount}} 題，失敗 ${{failCount}} 題），請在網路良好時重試。`;
         cacheLabel.style.color = '#dc2626';
-        btnDownloadAll.disabled = false;
-        btnDownloadAll.innerText = '📥 重新下載全套音檔';
       }}
+      checkExistingCache();
+    }}
+
+    // 下載當前單元
+    btnDownloadCurrent.onclick = () => {{
+      const list = questionsData.map(item => getAudioPath(currentUnit, item));
+      downloadAudioBatch(list, `正在下載【${{currentUnit === 'when' ? '生活問答' : '因果認知'}}】`);
+    }};
+
+    // 下載雙單元全部 200 題
+    btnDownloadAll.onclick = () => {{
+      const list1 = dataWhen.map(item => getAudioPath('when', item));
+      const list2 = dataWhy.map(item => getAudioPath('why', item));
+      downloadAudioBatch([...list1, ...list2], '正在下載雙單元 200 題');
     }};
 
     // 清理快取
@@ -826,38 +1050,34 @@ html_code = f"""<!DOCTYPE html>
           }}
           cacheLabel.innerText = '已清除快取，需重新連線或下載。';
           cacheLabel.style.color = '#dc2626';
-          btnDownloadAll.disabled = false;
-          btnDownloadAll.innerText = '📥 下載全套離線教材 (15MB)';
-          btnDownloadAll.style.background = '#2563eb';
-          btnDownloadAll.style.borderColor = '#2563eb';
           cacheProgressBar.style.display = 'none';
           cacheProgressFill.style.width = '0%';
         }}
       }}
     }};
 
-    // 檢查目前是否已快取完整音檔
+    // 檢查快取狀態
     async function checkExistingCache() {{
       if ('caches' in window) {{
-        const cache = await caches.open('autism-tts-v1.1.1');
+        const cache = await caches.open(CACHE_NAME);
         const keys = await cache.keys();
-        const audioCount = keys.filter(k => k.url.includes('.mp3')).length;
-        if (audioCount >= questionsData.length) {{
-          cacheLabel.innerText = `✅ 離線教材已快取就緒（共 ${{audioCount}} 題，無網路可播放）`;
+        const urls = keys.map(k => k.url);
+        const audioCount = urls.filter(u => u.includes('.mp3')).length;
+        if (audioCount >= 200) {{
+          cacheLabel.innerText = `✅ 雙單元 200 題已全數快取就緒（無網路隨時播放）`;
           cacheLabel.style.color = '#059669';
-          btnDownloadAll.innerText = '✅ 已離線可用';
-          btnDownloadAll.style.background = '#10b981';
-          btnDownloadAll.style.borderColor = '#10b981';
+        }} else if (audioCount >= 100) {{
+          cacheLabel.innerText = `✅ 已離線快取 ${{audioCount}} 題（無網路可播放已存項目）`;
+          cacheLabel.style.color = '#059669';
         }} else if (audioCount > 0) {{
-          cacheLabel.innerText = `⚠️ 目前已離線快取 ${{audioCount}}/${{questionsData.length}} 題，建議連線補齊`;
+          cacheLabel.innerText = `⚠️ 目前已離線快取 ${{audioCount}} 題，建議連線補齊`;
           cacheLabel.style.color = '#d97706';
-          btnDownloadAll.innerText = '📥 補齊剩餘離線教材';
         }}
       }}
     }}
 
-    renderList();
-    checkExistingCache();
+    // 初始化
+    switchUnit("when");
   </script>
 </body>
 </html>
@@ -866,4 +1086,4 @@ html_code = f"""<!DOCTYPE html>
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_code)
 
-print("Root index.html (PWA) built successfully!")
+print("Root index.html (PWA) with dual units built successfully!")
